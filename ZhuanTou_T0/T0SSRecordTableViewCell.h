@@ -16,5 +16,6 @@
 @property (strong, nonatomic) IBOutlet UILabel *statusLabel;
 @property (strong, nonatomic) IBOutlet UIButton *reportButton;
 @property (strong, nonatomic) IBOutlet UIButton *closeButton;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *constraint;
 
 @end

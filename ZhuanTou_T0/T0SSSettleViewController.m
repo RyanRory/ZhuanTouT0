@@ -14,7 +14,7 @@
 
 @implementation T0SSSettleViewController
 
-@synthesize finshButton, tView;
+@synthesize finshButton, tView, orderNo;
 
 #pragma ViewController LifeCycle
 - (void)viewDidLoad {
@@ -26,7 +26,8 @@
     
     tView.scrollEnabled = NO;
     
-    cellObjects = [NSMutableArray arrayWithObjects:@"当期总T0收益为XX元，约定分成比例为XX%，因此您将获得XX元收益。", @"请于XXXX年XX月XX日 XX:XX前将XX元银证转账至您的银行卡账户，并将其中的XX元转至本公司指定账户。", @"公司账户信息如下\n开户行：XXX银行\n账户号：6217001210006737121\n开户支行：XXX支行", @"当您完成转账后，请点击页面下方“我已完成转账”按钮，递交处理申请。", nil];
+    dataModel = [T0SettleViewDataModel shareInstance];
+    [dataModel getDataFromServer:orderNo];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -50,6 +51,14 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+#pragma refreshData
+- (void)refreshData
+{
+    self.hud.hidden = YES;
+    cellObjects = [NSArray arrayWithArray:[dataModel getCellObjects]];
+    [tView reloadData];
+}
+
 #pragma didReceiveMemoryWarning
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -67,7 +76,31 @@
 - (void)buttonTouchUpInsideAction:(UIButton*)sender
 {
     sender.backgroundColor = MYSSBUTTONDARK;
-    [self.navigationController popViewControllerAnimated:YES];
+    if (!isLoading)
+    {
+        self.hud.hidden = NO;
+        isLoading = true;
+        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+        NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"/api/intraday/confirmWithdraw/%@",orderNo]];
+        [manager POST:URL parameters:nil success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
+            NSLog(@"%@", responseObject);
+            self.hud.hidden = YES;
+            if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
+            {
+                isLoading = false;
+                [self.navigationController popViewControllerAnimated:YES];
+            }
+            else
+            {
+                [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowError" object:[responseObject objectForKey:@"errorMessage"]];
+            }
+            
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            NSLog(@"Error: %@", error);
+            self.hud.hidden = YES;
+            [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
+        }];
+    }
 }
 
 - (void)buttonTouchDownAction:(UIButton*)sender

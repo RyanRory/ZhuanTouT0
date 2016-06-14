@@ -26,6 +26,8 @@
     [chooseView addButtons:[NSArray arrayWithObjects:@"是", @"否", nil] withMarginBetween:30 withMarginSides:20];
     
     dataModel = [T0StockDataModel shareInstance];
+    
+    self.hud.hidden = YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -54,49 +56,64 @@
 
 - (void)next:(id)sender
 {
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"api/intraday/sendStockSource"]];
-    NSString *isBroker;
-    if ([chooseView.buttonOnlyEngine getSelectedButtonTag] == 0)
+    if (!isLoading)
     {
-        isBroker = @"true";
-    }
-    else
-    {
-        isBroker = @"false";
-    }
-    NSDictionary *parameters = @{@"isBroker":isBroker,
-                                 @"stocks":[dataModel getStockSourceArray]};
-    [manager POST:URL parameters:parameters success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
-        NSLog(@"%@", responseObject);
-        if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
+        if ([chooseView.buttonOnlyEngine getSelectedButtonTag] == -1)
         {
-            [dataModel clearData];
-            T0StockSourceCompleteViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0StockSourceCompleteViewController"];
-            if ([chooseView.buttonOnlyEngine getSelectedButtonTag] == 0)
-            {
-                vc.style = MYSTOCKCOURCE;
-            }
-            else
-            {
-                vc.style = RECOMMENDSTOCKCOURCE;
-            }
-            [self.navigationController pushViewController:vc animated:YES];
+            errorView = [[T0ErrorMessageView alloc]init];
+            [errorView showInView:self.navigationController.view withMessage:@"请选择账户是否属于您本人" byStyle:ERRORMESSAGEWARNING];
+        }
+        else if ([dataModel getStockSourceArray].count == 0)
+        {
+            errorView = [[T0ErrorMessageView alloc]init];
+            [errorView showInView:self.navigationController.view withMessage:@"请添加您的股票" byStyle:ERRORMESSAGEWARNING];
         }
         else
         {
+            isLoading = true;
+            self.hud.hidden = NO;
+            AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+            NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"api/intraday/sendStockSource"]];
+            BOOL isBroker = [chooseView.buttonOnlyEngine getSelectedButtonTag];
             
+            NSDictionary *parameters = @{@"isBroker":[T0BaseFunction boolToString:isBroker],
+                                         @"stocks":[dataModel getStockSourceArray]};
+            [manager POST:URL parameters:parameters success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
+                NSLog(@"%@", responseObject);
+                self.hud.hidden = YES;
+                if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
+                {
+                    [dataModel clearData];
+                    T0StockSourceCompleteViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0StockSourceCompleteViewController"];
+                    if ([chooseView.buttonOnlyEngine getSelectedButtonTag] == 0)
+                    {
+                        vc.style = MYSTOCKCOURCE;
+                    }
+                    else
+                    {
+                        vc.style = RECOMMENDSTOCKCOURCE;
+                    }
+                    isLoading = false;
+                    [self.navigationController pushViewController:vc animated:YES];
+                }
+                else
+                {
+                    [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowError" object:[responseObject objectForKey:@"errorMessage"]];
+                }
+                
+            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                NSLog(@"Error: %@", error);
+                self.hud.hidden = YES;
+                [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
+            }];
         }
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
-        
-    }];
+    }
 
 }
 
 - (void)cancel:(id)sender
 {
+    [dataModel clearData];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
@@ -178,7 +195,7 @@
             cell = [[T0StockSourceTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"T0StockSourceTableViewCell"];
         }
         cell.stockCodeNNameLabel.text = [NSString stringWithFormat:@"%@ %@", [data objectForKey:@"stockCode"], [data objectForKey:@"stockName"]];
-        cell.marketValueLabel.text = [T0BaseFunction formatterNumberWithDecimal:[data objectForKey:@"noOfShares"]];
+        cell.marketValueLabel.text = [T0BaseFunction formatterNumberWithoutDecimal:[data objectForKey:@"noOfShares"]];
         cell.preTimeLabel.text = [data objectForKey:@"preTime"];
         cell.deleteButton.tag = indexPath.section;
         [cell.deleteButton addTarget:self action:@selector(deleteAtIndex:) forControlEvents:UIControlEventTouchUpInside];

@@ -9,8 +9,13 @@
 #import <UIKit/UIKit.h>
 
 @interface T0BaseViewController : UIViewController
+{
+    T0ErrorMessageView *errorView;
+    BOOL isLoading;
+}
 
 - (void)refreshData;
-- (void)showError;
+- (void)showError:(NSString*)message;
+- (void)HTTPFail;
 
 @end

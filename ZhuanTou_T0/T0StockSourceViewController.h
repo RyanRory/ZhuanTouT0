@@ -22,5 +22,6 @@
 
 @property (strong, nonatomic) IBOutlet T0StockSourceChooseView *chooseView;
 @property (strong, nonatomic) IBOutlet UITableView *tView;
+@property (strong, nonatomic) IBOutlet T0ProgressHUDView *hud;
 
 @end

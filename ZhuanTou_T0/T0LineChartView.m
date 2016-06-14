@@ -53,7 +53,15 @@
 {
     if (xTextLabels.count == 0)
     {
-        xlabelWidth = (self.frame.size.width+20)/(xLabels.count-0.5);
+        if (points.count > 5)
+        {
+            xLabelMargin = (self.frame.size.width+10)/(points.count-0.5)*(points.count%4-1);
+        }
+        else
+        {
+            xLabelMargin = 0;
+        }
+        xlabelWidth = (self.frame.size.width+10-xLabelMargin)/(xLabels.count-0.5);
         UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(-7, self.frame.size.height-10, xlabelWidth, 10)];
         label.text = xLabels[0];
         label.textColor = MYSSGRAY;
@@ -63,7 +71,7 @@
         
         for (int i = 1; i < xLabels.count; i++)
         {
-            UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(1.0+(-0.5+i)*xlabelWidth, self.frame.size.height-10, xlabelWidth, 10)];
+            UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(1.0+(self.frame.size.width+10)/points.count*(i*floor(points.count/4))-xlabelWidth/2, self.frame.size.height-10, xlabelWidth, 10)];
             label.text = xLabels[i];
             label.textColor = MYSSGRAY;
             label.textAlignment = 1;
@@ -128,7 +136,7 @@
     
     for (int i = 0; i <(xLabels.count-1)/2; i++)
     {
-        UIView *rectangle = [[UIView alloc]initWithFrame:CGRectMake(1.0+(i*2+1)*xlabelWidth, 0, xlabelWidth, self.frame.size.height-12)];
+        UIView *rectangle = [[UIView alloc]initWithFrame:CGRectMake(1.0+(self.frame.size.width+10)/points.count*((i*2+1)*floor(points.count/4)), 0, (self.frame.size.width+10)/points.count*floor(points.count/4), self.frame.size.height-12)];
         rectangle.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.1];
         [self addSubview:rectangle];
     }
@@ -156,7 +164,7 @@
     [path moveToPoint:CGPointMake(1, [self calculatePointY:0])];
     for (int i = 1; i < points.count; i++)
     {
-        [path addLineToPoint:CGPointMake(1.0+xlabelWidth*i, [self calculatePointY:i])];
+        [path addLineToPoint:CGPointMake(1.0+(self.frame.size.width+10)/points.count*i, [self calculatePointY:i])];
     }
     /** 将折线添加到折线图层上，并设置相关的属性 */
     self.lineChartLayer = [CAShapeLayer layer];

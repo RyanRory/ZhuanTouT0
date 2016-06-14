@@ -11,9 +11,8 @@
 @interface T0InputPasswordViewController : T0BaseViewController<UITextFieldDelegate>
 
 @property (strong, nonatomic) IBOutlet UILabel *accountLabel;
-@property (strong, nonatomic) IBOutlet UILabel *statusLabel;
 @property (strong, nonatomic) IBOutlet T0SmartPlaceholderTextField *passwordTextField;
-@property (readwrite, nonatomic) BOOL hadAPassword;
-@property (readwrite, nonatomic) NSString *account;
+@property (readwrite, nonatomic) NSDictionary *account;
+@property (readwrite, nonatomic) int style;//0修改交易密码，1设置通讯密码，2修改通讯密码
 
 @end

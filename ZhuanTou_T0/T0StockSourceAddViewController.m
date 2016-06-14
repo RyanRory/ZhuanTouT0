@@ -30,10 +30,9 @@
     
     [stockValueTextField setPlaceHolderText:@"请输入您所持有股票的数量"];
     [stockValueTextField setPlaceHolderChangeText:@"股票数量(股)"];
-    [stockValueTextField setUnitsEntry:YES Units:@"股"];
     stockValueTextField.delegate = self;
     
-    [chooseView setTitle:@"您持有股票的期限"];
+    [chooseView setTitle:@"您还将持有股票的期限"];
     [chooseView addButtons:[NSArray arrayWithObjects:@"<1个月", @"1-3个月", @"3-6个月", @">6个月", @"暂不确定", nil] withMarginBetween:5 withMarginSides:0];
     [chooseView setButtonsFontSize:13];
     
@@ -71,25 +70,53 @@
 
 - (void)next:(id)sender
 {
-    NSMutableDictionary *stockSource = [[NSMutableDictionary alloc]init];
-    NSMutableArray *array = [NSMutableArray arrayWithArray:[dataModel getStockSourceArray]];
-    if (array.count == 0)
+    if ([stockCodeTextField getTextFieldStr].length == 0)
     {
-        array = [[NSMutableArray alloc]init];
+        errorView = [[T0ErrorMessageView alloc]init];
+        [errorView showInView:self.navigationController.view withMessage:@"请输入股票代码" byStyle:ERRORMESSAGEWARNING];
     }
-    NSString *code = [[stockCodeTextField getTextFieldStr] substringWithRange:NSMakeRange(0, 6)];
-    NSString *name = [[stockCodeTextField getTextFieldStr] substringWithRange:NSMakeRange(6, [stockCodeTextField getTextFieldStr].length-6)];
-    [stockSource setObject:code forKey:@"stockCode"];
-    [stockSource setObject:[T0BaseFunction deleteSpacesForString:name] forKey:@"stockName"];
-    [stockSource setObject:[stockValueTextField getTextFieldStr] forKey:@"noOfShares"];
-    [stockSource setObject:[chooseView.buttonOnlyEngine getSelectedButtonTitle] forKey:@"preTime"];
-    [stockSource setObject:[NSString stringWithFormat:@"%d",([chooseView.buttonOnlyEngine getSelectedButtonTag]+1)%5] forKey:@"lockCycle"];
-    
-    [array addObject:stockSource];
-    
-    [dataModel setStockSourceArray:array];
-    
-    [self.navigationController popViewControllerAnimated:YES];
+    else if ([stockValueTextField getTextFieldStr].length == 0)
+    {
+        errorView = [[T0ErrorMessageView alloc]init];
+        [errorView showInView:self.navigationController.view withMessage:@"请输入股票数量" byStyle:ERRORMESSAGEWARNING];
+    }
+    else if (![[NSPredicate predicateWithFormat:@"SELF MATCHES %@",@"^(0|[1-9][0-9]*)$"] evaluateWithObject:[stockValueTextField getTextFieldStr]])
+    {
+        errorView = [[T0ErrorMessageView alloc]init];
+        [errorView showInView:self.navigationController.view withMessage:@"请输入正确的股票数量" byStyle:ERRORMESSAGEWARNING];
+    }
+    else if ([chooseView.buttonOnlyEngine getSelectedButtonTag] == -1)
+    {
+        errorView = [[T0ErrorMessageView alloc]init];
+        [errorView showInView:self.navigationController.view withMessage:@"请选择股票期限" byStyle:ERRORMESSAGEWARNING];
+    }
+    else if ([stockCodeTextField getTextFieldStr].length < 6 || [T0BaseFunction isChinese:[[stockCodeTextField getTextFieldStr] substringWithRange:NSMakeRange(0, 6)]])
+    {
+        errorView = [[T0ErrorMessageView alloc]init];
+        [errorView showInView:self.navigationController.view withMessage:@"请输入正确的股票代码" byStyle:ERRORMESSAGEWARNING];
+    }
+    else
+    {
+        NSMutableDictionary *stockSource = [[NSMutableDictionary alloc]init];
+        NSMutableArray *array = [NSMutableArray arrayWithArray:[dataModel getStockSourceArray]];
+        if (array.count == 0)
+        {
+            array = [[NSMutableArray alloc]init];
+        }
+        NSString *code = [[stockCodeTextField getTextFieldStr] substringWithRange:NSMakeRange(0, 6)];
+        NSString *name = [[stockCodeTextField getTextFieldStr] substringWithRange:NSMakeRange(6, [stockCodeTextField getTextFieldStr].length-6)];
+        [stockSource setObject:code forKey:@"stockCode"];
+        [stockSource setObject:[T0BaseFunction deleteSpacesForString:name] forKey:@"stockName"];
+        [stockSource setObject:[stockValueTextField getTextFieldStr] forKey:@"noOfShares"];
+        [stockSource setObject:[chooseView.buttonOnlyEngine getSelectedButtonTitle] forKey:@"preTime"];
+        [stockSource setObject:[NSString stringWithFormat:@"%d",([chooseView.buttonOnlyEngine getSelectedButtonTag]+1)%5] forKey:@"lockCycle"];
+        
+        [array addObject:stockSource];
+        
+        [dataModel setStockSourceArray:array];
+        
+        [self.navigationController popViewControllerAnimated:YES];
+    }
 }
 
 - (void)cancel:(id)sender

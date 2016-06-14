@@ -14,7 +14,7 @@
 
 @implementation T0LoginPasswordViewController
 
-@synthesize passwordTextField, descriptionLabel, secureEntryButton;
+@synthesize passwordTextField, descriptionLabel, secureEntryButton, forgotPswdButton ,forgotPswdLine, forgotPswdLabel;
 
 #pragma ViewController LifeCycle
 - (void)viewDidLoad {
@@ -30,7 +30,11 @@
     secureEntryButton.selected = YES;
     [secureEntryButton addTarget:self action:@selector(isSecureTextEntry:) forControlEvents:UIControlEventTouchUpInside];
     
+    [self initButtonAction:forgotPswdButton];
+    
     dataModel = [T0LoginDataModel shareInstance];
+    
+    self.hud.hidden = YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -50,6 +54,34 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma buttonAction Function
+- (void)initButtonAction:(UIButton*)sender
+{
+    [sender addTarget:self action:@selector(buttonTouchUpInsideAction:) forControlEvents:UIControlEventTouchUpInside];
+    [sender addTarget:self action:@selector(buttonTouchDownAction:) forControlEvents:UIControlEventTouchDown];
+    [sender addTarget:self action:@selector(buttonCancelAction:) forControlEvents:UIControlEventTouchCancel];
+    [sender addTarget:self action:@selector(buttonCancelAction:) forControlEvents:UIControlEventTouchDragExit];
+}
+- (void)buttonTouchUpInsideAction:(UIButton*)sender
+{
+    [T0Animator transopacityAnimation:forgotPswdLine fromValue:0.1 toValue:1.0 duration:0.15];
+    [T0Animator transopacityAnimation:forgotPswdLabel fromValue:0.1 toValue:1.0 duration:0.15];
+    T0NavigationController *nav = [[self storyboard]instantiateViewControllerWithIdentifier:@"ForgotPasswordNav"];
+    [self.navigationController presentViewController:nav animated:YES completion:nil];
+}
+
+- (void)buttonTouchDownAction:(UIButton*)sender
+{
+    [T0Animator transopacityAnimation:forgotPswdLine fromValue:1.0 toValue:0.1 duration:0.15];
+    [T0Animator transopacityAnimation:forgotPswdLabel fromValue:1.0 toValue:0.1 duration:0.15];
+}
+
+- (void)buttonCancelAction:(UIButton*)sender
+{
+    [T0Animator transopacityAnimation:forgotPswdLine fromValue:0.1 toValue:1.0 duration:0.15];
+    [T0Animator transopacityAnimation:forgotPswdLabel fromValue:0.1 toValue:1.0 duration:0.15];
 }
 
 #pragma SecureEntryButtonAction
@@ -73,44 +105,75 @@
 {
     UIBarButtonItem *leftItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"BackArrow"] style:UIBarButtonItemStylePlain target:self action:@selector(back:)];
     leftItem.tintColor = [UIColor whiteColor];
-    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc]initWithTitle:@"下一步" style:UIBarButtonItemStylePlain target:self action:@selector(next:)];
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc]initWithTitle:@"完成" style:UIBarButtonItemStylePlain target:self action:@selector(next:)];
     rightItem.tintColor = [UIColor whiteColor];
     UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithCustomView:[UIButton buttonWithType:UIButtonTypeCustom]];
     self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:leftItem, item, nil];
     self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:rightItem, item, nil];
     
-    [self.navigationItem.rightBarButtonItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIFont boldSystemFontOfSize:13], NSFontAttributeName,nil] forState:UIControlStateNormal];
+    [self.navigationItem.rightBarButtonItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIFont boldSystemFontOfSize:14], NSFontAttributeName,nil] forState:UIControlStateNormal];
 }
 
 - (void)next:(id)sender
 {
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"api/auth/signIn"]];
-    NSDictionary *parameters = @{@"login":[T0BaseFunction deleteSpacesForString:[dataModel getMobile]],
-                                 @"password":[self.passwordTextField getTextFieldStr]};
-    [manager POST:URL parameters:parameters success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
-        NSLog(@"%@", responseObject);
-        if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isAuthenticated"]].boolValue)
+    if (!isLoading)
+    {
+        if ([passwordTextField getTextFieldStr].length == 0)
         {
-            [dataModel setPassword:[self.passwordTextField getTextFieldStr]];
-            [dataModel saveAllDataToUserDefaults];
-            
-            T0NavigationController *nav = [[self storyboard]instantiateViewControllerWithIdentifier:@"MainNav"];
-            [nav setModalTransitionStyle:UIModalTransitionStyleFlipHorizontal];
-            [self.navigationController presentViewController:nav animated:YES completion:nil];
+            errorView = [[T0ErrorMessageView alloc]init];
+            [errorView showInView:self.navigationController.view withMessage:@"请输入密码" byStyle:ERRORMESSAGEERROR];
         }
         else
         {
-            descriptionLabel.text = [NSString stringWithFormat:@"%@", [responseObject objectForKey:@"errorMessage"]];
-            descriptionLabel.textColor = ERRORRED;
-            [T0Animator shakeView:self.passwordTextField.textInputView];
-            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+            isLoading = true;
+            self.hud.hidden = NO;
+            AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+            NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"api/auth/signIn"]];
+            NSDictionary *parameters = @{@"login":[T0BaseFunction deleteSpacesForString:[dataModel getMobile]],
+                                         @"password":[self.passwordTextField getTextFieldStr]};
+            [manager POST:URL parameters:parameters success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
+                NSLog(@"%@", responseObject);
+                self.hud.hidden = YES;
+                if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isAuthenticated"]].boolValue)
+                {
+                    isLoading = false;
+                    [dataModel setPassword:[self.passwordTextField getTextFieldStr]];
+                    [dataModel saveAllDataToUserDefaults];
+                    
+                    settingsDataModel = [T0SettingsDataModel shareInstance];
+                    if ([[responseObject objectForKey:@"fullName"] isKindOfClass:[NSNull class]])
+                    {
+                        [settingsDataModel setIsRealNameSet:false];
+                        [settingsDataModel setRealName:@""];
+                    }
+                    else
+                    {
+                        [settingsDataModel setIsRealNameSet:true];
+                        [settingsDataModel setRealName:[NSString stringWithFormat:@"%@",[responseObject objectForKey:@"fullName"]]];
+                    }
+                    
+                    [passwordTextField resignFirstResponder];
+                    errorView = [[T0ErrorMessageView alloc]init];
+                    [errorView showInView:self.navigationController.view withMessage:@"登录成功" byStyle:ERRORMESSAGESUCCESS];
+                    [self.navigationController dismissViewControllerAnimated:NO completion:^(void){
+                        [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowHomePage" object:nil];
+                    }];
+                    
+                }
+                else
+                {
+                    [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowError" object:[responseObject objectForKey:@"errorMessage"]];
+                    [T0Animator shakeView:self.passwordTextField.textInputView];
+                    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+                }
+                
+            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                NSLog(@"Error: %@", error);
+                self.hud.hidden = YES;
+                [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
+            }];
         }
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
-        
-    }];
+    }
 }
 
 - (void)back:(id)sender

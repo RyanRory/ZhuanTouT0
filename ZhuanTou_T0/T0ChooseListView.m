@@ -55,8 +55,11 @@
     for (int i = 0; i < 5; i ++)
     {
         UIButton *button = buttonArray[i];
-        NSString *str = [NSString stringWithFormat:@"%@  %@", [titles[i] objectForKey:@"code"], [titles[i] objectForKey:@"name"]];
+        NSString *str = [NSString stringWithFormat:@"%@   %@", [titles[i] objectForKey:@"code"], [titles[i] objectForKey:@"name"]];
+        
         [button setTitle:str forState:UIControlStateNormal];
+        [button setContentHorizontalAlignment:UIControlContentHorizontalAlignmentFill];
+        [button setTitleEdgeInsets:UIEdgeInsetsMake(0, 13, 0, 0)];
     }
 }
 

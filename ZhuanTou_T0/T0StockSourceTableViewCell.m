@@ -13,8 +13,6 @@
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code
-    [self.deleteButton.layer setBorderColor:[UIColor colorWithWhite:1 alpha:0.5].CGColor];
-    [self.deleteButton.layer setBorderWidth:1];
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

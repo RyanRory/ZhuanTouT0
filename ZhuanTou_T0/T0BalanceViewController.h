@@ -10,13 +10,20 @@
 #import "T0BalanceDataModel.h"
 #import "T0BalanceTableViewCell.h"
 
-@interface T0BalanceViewController : T0BaseViewController<UITableViewDelegate, UITableViewDataSource>
+#import "T0MyBankCardViewController.h"
+
+@interface T0BalanceViewController : T0BaseViewController<UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate>
 {
     T0BalanceDataModel *dataModel;
+    CGRect bgImageViewOriginFrame;
 }
 
 @property (strong, nonatomic) IBOutlet UILabel *balanceLabel;
 @property (strong, nonatomic) IBOutlet UITableView *tView;
 @property (strong, nonatomic) IBOutlet UIButton *toChargeButton;
+@property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *viewConstraint;
+@property (strong, nonatomic) IBOutlet UIImageView *bgImageView;
+@property (strong, nonatomic) IBOutlet T0ProgressHUDView *hud;
 
 @end

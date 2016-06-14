@@ -46,6 +46,31 @@
     }
     
     animatedFlag = false;
+    dataModel = [T0HomePageDataModel shareInstance];
+    
+    if ([dataModel getData].count > 0)
+    {
+        LGAlertView *alertView = [[LGAlertView alloc] initWithTitle:[NSString stringWithFormat:@"%@",[[dataModel getData] objectForKey:@"eventType"]] message:[NSString stringWithFormat:@"%@",[[dataModel getData] objectForKey:@"text"]] style:LGAlertViewStyleAlert buttonTitles:@[@"前往处理"] cancelButtonTitle:@"暂不处理" destructiveButtonTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index){
+            T0SSSettleViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0SSSettleViewController"];
+            vc.orderNo = [NSString stringWithFormat:@"%@", [[dataModel getData] objectForKey:@"relatedRecord"]];
+            [self.navigationController pushViewController:vc animated:YES];
+            [dataModel clearData];
+        } cancelHandler:^(LGAlertView *alertView){
+            [dataModel clearData];
+        } destructiveHandler:nil];
+        alertView.backgroundColor = MYSSBUTTONDARK;
+        alertView.titleTextColor = [UIColor whiteColor];
+        alertView.titleFont = [UIFont systemFontOfSize:14.0];
+        alertView.buttonsTitleColor = BUTTONYELLOEW;
+        alertView.buttonsBackgroundColorHighlighted = MYSSBUTTONBLUE;
+        alertView.buttonsFont = [UIFont systemFontOfSize:13.0];
+        alertView.messageTextColor = [UIColor whiteColor];
+        alertView.cancelButtonTitleColor = [UIColor whiteColor];
+        alertView.cancelButtonBackgroundColorHighlighted = MYSSBUTTONBLUE;
+        alertView.cancelButtonFont = [UIFont systemFontOfSize:13.0];
+        alertView.separatorsColor = [UIColor colorWithRed:89.0/255.0 green:87.0/255.0 blue:87.0/255.0 alpha:1.0];
+        [alertView showAnimated:YES completionHandler:nil];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -73,18 +98,6 @@
     self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:rightItem, item, nil];
 }
 
-#pragma refreshData
-- (void)refreshData
-{
-    
-}
-
-#pragma ServerError
-- (void)showError
-{
-    
-}
-
 #pragma didReceiveMemoryWarning
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -92,7 +105,7 @@
 }
 
 #pragma buttonAction
-- (void)buttonTouchUpInside:(NSInteger)index
+- (void)buttonTouchUpInside:(long)index
 {
     UIView *view = views[index];
     UIImageView *imageView = imageViews[index];
@@ -122,6 +135,13 @@
             [self.navigationController pushViewController:vc animated:YES];
             break;
         }
+            
+        case 1:
+        {
+            T0StatisticsViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0StatisticsViewController"];
+            [self.navigationController pushViewController:vc animated:YES];
+            break;
+        }
         
         case 2:
         {
@@ -135,6 +155,14 @@
         {
             T0MySSViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0MySSViewController"];
             vc.style = RECOMMENDSTOCKCOURCE;
+            [self.navigationController pushViewController:vc animated:YES];
+            break;
+        }
+            
+        case 4:
+        {
+            T0MyBankCardViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0MyBankCardViewController"];
+            vc.style = MYBANKCARD;
             [self.navigationController pushViewController:vc animated:YES];
             break;
         }
@@ -163,12 +191,14 @@
 
 - (void)toMessages:(id)sender
 {
-    
+    T0MessageViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0MessageViewController"];
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 - (void)toSettings:(id)sender
 {
-    
+    T0SettingsViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0SettingsViewController"];
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 #pragma buttonAnimation

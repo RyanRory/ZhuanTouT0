@@ -43,7 +43,7 @@ static T0SettleRecordDataModel *instance = nil;
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
-        [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowError" object:nil];
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
     }];
 }
 
@@ -59,7 +59,7 @@ static T0SettleRecordDataModel *instance = nil;
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
-        [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowError" object:nil];
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
     }];
 }
 

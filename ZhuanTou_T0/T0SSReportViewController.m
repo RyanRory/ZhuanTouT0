@@ -47,7 +47,7 @@
     max = min = [NSString stringWithFormat:@"%@",[lineChartData[0] objectForKey:key]].doubleValue;
     for (int i = 0; i < lineChartData.count; i++)
     {
-        [xLabels addObject:[NSString stringWithFormat:@"%@",[lineChartData[i] objectForKey:@"date"]]];
+        //[xLabels addObject:[NSString stringWithFormat:@"%@",[lineChartData[i] objectForKey:@"date"]]];
         [points addObject:[NSString stringWithFormat:@"%@",[lineChartData[i] objectForKey:key]]];
         if ([NSString stringWithFormat:@"%@",[lineChartData[i] objectForKey:key]].doubleValue > max)
         {
@@ -58,6 +58,23 @@
             min = [NSString stringWithFormat:@"%@",[lineChartData[i] objectForKey:key]].doubleValue;
         }
     }
+    
+    if (lineChartData.count <=5)
+    {
+        for (int i = 0; i < lineChartData.count; i++)
+        {
+            [xLabels addObject:[NSString stringWithFormat:@"%@",[lineChartData[i] objectForKey:@"date"]]];
+        }
+    }
+    else
+    {
+        int betweens = floor(lineChartData.count/4);
+        for (int i = 0, j = 0; j < 5; j++, i+=betweens)
+        {
+            [xLabels addObject:[NSString stringWithFormat:@"%@",[lineChartData[i] objectForKey:@"date"]]];
+        }
+    }
+    
     min = floor(min);
     max = ceil(max);
     double temp = (max-min)/5;

@@ -14,7 +14,7 @@
 
 @implementation T0ShowPasswordViewController
 
-@synthesize account, accountLabel, changePasswordButton, passwordTextField, secureEntryButton;
+@synthesize account, accountLabel, tradePswdTextField, tradePswdSecureEntryButton, changeTradePswdButton, communicationPswdTextField, communicationPswdStatusLabel, communicationPswdSecureEntryButton, changeCommunicationPswdButton;
 
 #pragma ViewController LifeCycle
 - (void)viewDidLoad {
@@ -22,17 +22,45 @@
     
     [self initNavigationBar];
     
-    [passwordTextField setSecureTextEntry:YES];
-    [passwordTextField setUserInteractionEnabled:NO];
-    [passwordTextField setText:@"123456"];
+    if ([[account objectForKey:@"accountNumber"] isKindOfClass:[NSNull class]])
+    {
+        accountLabel.text = @"账户号(暂未登记)";
+    }
+    else
+    {
+        accountLabel.text = [NSString stringWithFormat:@"账户号%@", [account objectForKey:@"accountNumber"]];
+    }
     
-    accountLabel.text = account;
+    [tradePswdTextField setSecureTextEntry:YES];
+    [tradePswdTextField setText:[NSString stringWithFormat:@"%@",[account objectForKey:@"tradePassword"]]];
+    [tradePswdTextField setUserInteractionEnabled:NO];
     
-    secureEntryButton.selected = YES;
-    [secureEntryButton addTarget:self action:@selector(isSecureTextEntry:) forControlEvents:UIControlEventTouchUpInside];
+    if ([[account objectForKey:@"commPassword"] isKindOfClass:[NSNull class]])
+    {
+        communicationPswdStatusLabel.text = @"您当前的通讯密码暂未设置";
+        communicationPswdSecureEntryButton.hidden = YES;
+    }
+    else
+    {
+        communicationPswdStatusLabel.text = @"您当前的通讯密码为";
+        communicationPswdSecureEntryButton.hidden = NO;
+        [communicationPswdTextField setText:[NSString stringWithFormat:@"%@",[account objectForKey:@"commPassword"]]];
+        
+    }
+    [communicationPswdTextField setSecureTextEntry:YES];
+    [communicationPswdTextField setUserInteractionEnabled:NO];
     
-    [self initButtonAction:changePasswordButton];
+    tradePswdSecureEntryButton.tag = 0;
+    communicationPswdSecureEntryButton.tag = 1;
+    tradePswdSecureEntryButton.selected = YES;
+    communicationPswdSecureEntryButton.selected = YES;
+    [tradePswdSecureEntryButton addTarget:self action:@selector(isSecureTextEntry:) forControlEvents:UIControlEventTouchUpInside];
+    [communicationPswdSecureEntryButton addTarget:self action:@selector(isSecureTextEntry:) forControlEvents:UIControlEventTouchUpInside];
     
+    changeTradePswdButton.tag = 0;
+    changeCommunicationPswdButton.tag = 1;
+    [self initButtonAction:changeTradePswdButton];
+    [self initButtonAction:changeCommunicationPswdButton];
 }
 
 #pragma initButtonAction Function
@@ -61,10 +89,28 @@
 - (void)buttonTouchUpInsideAction:(UIButton*)sender
 {
     sender.backgroundColor = MYSSBUTTONDARK;
-    T0InputPasswordViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0InputPasswordViewController"];
-    vc.hadAPassword = true;
-    vc.account = account;
-    [self.navigationController pushViewController:vc animated:YES];
+    if (sender.tag == 0)
+    {
+        T0InputPasswordViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0InputPasswordViewController"];
+        vc.style = 0;
+        vc.account = account;
+        [self.navigationController pushViewController:vc animated:YES];
+    }
+    else
+    {
+        T0InputPasswordViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0InputPasswordViewController"];
+        if (communicationPswdSecureEntryButton.hidden)
+        {
+            vc.style = 1;
+        }
+        else
+        {
+            vc.style = 2;
+        }
+        vc.account = account;
+        [self.navigationController pushViewController:vc animated:YES];
+    }
+    
 }
 
 - (void)buttonTouchDownAction:(UIButton*)sender
@@ -81,8 +127,15 @@
 - (void)isSecureTextEntry:(UIButton*)sender
 {
     sender.selected = !sender.selected;
-    [passwordTextField setSecureTextEntry:sender.selected];
     //实现textfield安全输入和正常输入的文字转换
+    if (sender.tag == 0)
+    {
+        [tradePswdTextField setSecureTextEntry:sender.selected];
+    }
+    else
+    {
+        [communicationPswdTextField setSecureTextEntry:sender.selected];
+    }
     if (sender.selected)
     {
         [sender setImage:[UIImage imageNamed:@"EyeClose"] forState:UIControlStateNormal];

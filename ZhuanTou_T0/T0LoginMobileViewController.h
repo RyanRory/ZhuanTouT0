@@ -18,5 +18,6 @@
 
 @property (strong, nonatomic) IBOutlet T0SmartPlaceholderTextField *mobileTextField;
 @property (strong, nonatomic) IBOutlet UILabel *descriptionLabel;
+@property (strong, nonatomic) IBOutlet T0ProgressHUDView *hud;
 
 @end

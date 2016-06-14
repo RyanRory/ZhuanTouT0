@@ -31,6 +31,8 @@
     [secureEntryButton addTarget:self action:@selector(isSecureTextEntry:) forControlEvents:UIControlEventTouchUpInside];
     
     dataModel = [T0RegisterDataModel shareInstance];
+    
+    self.hud.hidden = YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -77,40 +79,65 @@
     rightItem.tintColor = [UIColor whiteColor];
     UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithCustomView:[UIButton buttonWithType:UIButtonTypeCustom]];
     self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:leftItem, item, nil];
-    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:rightItem, item, nil];
+    self.navigationItem.rightBarButtonItem = rightItem;
     
-    [self.navigationItem.rightBarButtonItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIFont boldSystemFontOfSize:13], NSFontAttributeName,nil] forState:UIControlStateNormal];
+    [self.navigationItem.rightBarButtonItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIFont boldSystemFontOfSize:14], NSFontAttributeName,nil] forState:UIControlStateNormal];
 }
 
 - (void)next:(id)sender
 {
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"api/auth/register"]];
-    NSDictionary *parameters = @{@"mobilePhone":[dataModel getMobile],
-                                 @"smsCode":[dataModel getSmsCode],
-                                 @"password":[passwordTextField getTextFieldStr]};
-    [manager POST:URL parameters:parameters success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
-        NSLog(@"%@", responseObject);
-        if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
+    if (!isLoading)
+    {
+        if ([passwordTextField getTextFieldStr].length == 0)
         {
-            [dataModel setPassword:[passwordTextField getTextFieldStr]];
-            [dataModel saveAllDataToUserDefaults];
-            
-            T0RegisterSuccessViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0RegisterSuccessViewController"];
-            [self.navigationController pushViewController:vc animated:YES];
+            errorView = [[T0ErrorMessageView alloc]init];
+            [errorView showInView:self.navigationController.view withMessage:@"请输入密码" byStyle:ERRORMESSAGEERROR];
         }
         else
         {
-            descriptionLabel.text = [NSString stringWithFormat:@"%@", [responseObject objectForKey:@"errorMessage"]];
-            descriptionLabel.textColor = ERRORRED;
-            [T0Animator shakeView:self.passwordTextField.textInputView];
-            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+            isLoading = true;
+            self.hud.hidden = NO;
+            AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+            NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"api/auth/register"]];
+            NSDictionary *parameters = @{@"mobilePhone":[dataModel getMobile],
+                                         @"smsCode":[dataModel getSmsCode],
+                                         @"password":[passwordTextField getTextFieldStr]};
+            [manager POST:URL parameters:parameters success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
+                NSLog(@"%@", responseObject);
+                isLoading = false;
+                self.hud.hidden = YES;
+                if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
+                {
+                    [dataModel setPassword:[passwordTextField getTextFieldStr]];
+                    [dataModel saveAllDataToUserDefaults];
+                    
+                    [passwordTextField resignFirstResponder];
+                    errorView = [[T0ErrorMessageView alloc]init];
+                    [errorView showInView:self.navigationController.view withMessage:@"注册成功" byStyle:ERRORMESSAGESUCCESS];
+                    
+                    settingsDataModel = [T0SettingsDataModel shareInstance];
+                    [settingsDataModel setIsRealNameSet:false];
+                    [settingsDataModel setRealName:@""];
+                    
+                    [self.navigationController dismissViewControllerAnimated:NO completion:^(void){
+                        [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowHomePage" object:nil];
+                    }];
+                }
+                else
+                {
+                    [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowError" object:[responseObject objectForKey:@"errorMessage"]];
+                    [T0Animator shakeView:self.passwordTextField.textInputView];
+                    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+                }
+                
+            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                NSLog(@"Error: %@", error);
+                isLoading = false;
+                self.hud.hidden = YES;
+                [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
+            }];
         }
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
-        
-    }];
+    }
 }
 
 - (void)back:(id)sender

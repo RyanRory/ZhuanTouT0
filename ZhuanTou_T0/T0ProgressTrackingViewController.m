@@ -57,12 +57,6 @@
     [tView reloadData];
 }
 
-#pragma ServerError
-- (void)showError
-{
-    
-}
-
 #pragma didReceiveMemoryWarning
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

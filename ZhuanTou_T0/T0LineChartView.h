@@ -11,7 +11,7 @@
 @interface T0LineChartView : UIView
 {
     NSMutableArray *xLabels, *yLabels, *points, *xTextLabels, *yTextLabels;
-    double xlabelWidth, ylabelHeight;
+    double xlabelWidth, ylabelHeight, xLabelMargin;
     BOOL initLineFlag;
 }
 

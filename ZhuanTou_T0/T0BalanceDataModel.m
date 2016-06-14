@@ -26,8 +26,7 @@ static T0BalanceDataModel *instance = nil;
 {
     if (self = [super init])
     {
-        cellObjects = [NSArray arrayWithObjects:@{@"title":@"收入佣金(元)", @"amount":@"500000", @"progress":@"处理中", @"time":@"2016-5-1 10:13"},@{@"title":@"收入佣金(元)", @"amount":@"500000", @"progress":@"处理中", @"time":@"2016-5-1 10:13"},@{@"title":@"收入佣金(元)", @"amount":@"500000", @"progress":@"处理中", @"time":@"2016-5-1 10:13"},@{@"title":@"收入佣金(元)", @"amount":@"500000", @"progress":@"处理中", @"time":@"2016-5-1 10:13"},@{@"title":@"收入佣金(元)", @"amount":@"500000", @"progress":@"处理中", @"time":@"2016-5-1 10:13"},@{@"title":@"收入佣金(元)", @"amount":@"500000", @"progress":@"处理中", @"time":@"2016-5-1 10:13"}, nil];
-        balance = @"100000000";
+        balance = @"";
     }
     
     return self;
@@ -35,7 +34,19 @@ static T0BalanceDataModel *instance = nil;
 
 - (void)getDataFromServer
 {
-    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"api/account/accountRecords"]];
+    [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
+        NSLog(@"%@", responseObject);
+        balance = [NSString stringWithFormat:@"%@", [responseObject objectForKey:@"fundsAvailable"]];
+        cellObjects = [NSArray arrayWithArray:[responseObject objectForKey:@"accountRecords"]];
+        
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:nil];
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"HHTPFail" object:nil];
+    }];
 }
 
 - (void)setBalance:(NSString*)str

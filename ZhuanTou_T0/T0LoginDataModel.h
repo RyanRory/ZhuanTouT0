@@ -10,7 +10,7 @@
 
 @interface T0LoginDataModel : T0BaseModel
 {
-    NSString *mobile, *password;
+    NSString *mobile, *password, *vCode, *smsCode;
 }
 
 + (instancetype)shareInstance;
@@ -19,6 +19,10 @@
 - (NSString*)getMobile;
 - (void)setPassword:(NSString*)str;
 - (NSString*)getPassword;
+- (void)setVCode:(NSString*)str;
+- (NSString*)getVCode;
+- (void)setSmsCode:(NSString*)str;
+- (NSString*)getSmsCode;
 
 - (void)saveAllDataToUserDefaults;
 

@@ -15,7 +15,7 @@
 @implementation T0WebViewController
 
 @synthesize titleLabel, reloadButton, webView;
-@synthesize url;
+@synthesize url, titleText;
 
 #pragma ViewController LifeCycle
 - (void)viewDidLoad {
@@ -26,6 +26,8 @@
     [reloadButton addTarget:self action:@selector(reloadWebView:) forControlEvents:UIControlEventTouchUpInside];
     
     reloadButton.hidden = YES;
+    
+    titleLabel.text = titleText;
 }
 
 - (void)viewDidAppear:(BOOL)animated

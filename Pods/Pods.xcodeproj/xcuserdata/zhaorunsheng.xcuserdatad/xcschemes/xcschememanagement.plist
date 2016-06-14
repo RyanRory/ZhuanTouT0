@@ -14,6 +14,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>LGAlertView.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>MBProgressHUD.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -34,11 +39,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>SCNumberKeyBoard.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>SDWebImage.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -47,7 +47,12 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>15D32506C23686846B746794DD0F0F76</key>
+		<key>1B7FF9E1FE64CF225858D1288FBDD642</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>22EF013F2C2E72C2D8361E577DEB424A</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -57,7 +62,7 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>411899DFA861EAB3742EAD9252D64F89</key>
+		<key>38455A6C463F38AB05372BC5FF1C49F9</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -67,17 +72,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>8DDCB6272D8C004264F99AED27F4BA23</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>8F74D9EA91F4C43190670066BAC37D44</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>B81ADB452066849E215775EACD983E5B</key>
+		<key>D966D65B82C3477B69C5A559C52EB7D6</key>
 		<dict>
 			<key>primary</key>
 			<true/>

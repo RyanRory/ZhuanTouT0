@@ -60,7 +60,7 @@
 - (void)initTitle
 {
     self.titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH-40, 20)];
-    self.titleLabel.font = [UIFont systemFontOfSize:16];
+    self.titleLabel.font = [UIFont systemFontOfSize:14];
     self.titleLabel.textColor = [UIColor whiteColor];
     [self addSubview:self.titleLabel];
 }
@@ -73,7 +73,7 @@
     float width = (self.bounds.size.width - marginBetween*(buttons.count-1) - marginSides*2)/buttons.count;
     for (int i = 0; i < buttons.count; i++)
     {
-        [buttons[i] setFrame:CGRectMake(marginSides + (width+marginBetween)*i, 40, width, 32)];
+        [buttons[i] setFrame:CGRectMake(marginSides + (width+marginBetween)*i, 30, width, 32)];
     }
 }
 

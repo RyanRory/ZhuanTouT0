@@ -10,7 +10,7 @@
 #import "T0SSDetailTableViewCell.h"
 
 #import "T0SSRecordViewController.h"
-#import "T0InputPasswordViewController.h"
+#import "T0SetPasswordViewController.h"
 #import "T0ShowPasswordViewController.h"
 
 @interface T0SSDetailViewController : T0BaseViewController<UITableViewDelegate, UITableViewDataSource>

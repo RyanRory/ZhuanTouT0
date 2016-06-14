@@ -14,7 +14,7 @@
 
 @implementation T0BalanceViewController
 
-@synthesize tView, toChargeButton, balanceLabel;
+@synthesize tView, toChargeButton, balanceLabel, scrollView, viewConstraint, bgImageView;
 
 #pragma ViewController LifeCycle
 - (void)viewDidLoad {
@@ -22,18 +22,35 @@
     
     [self initNavigationBar];
     
-    [toChargeButton addTarget:self action:@selector(toCharge:) forControlEvents:UIControlEventTouchUpInside];
+    [self initButtonAction:toChargeButton];
     
     dataModel = [T0BalanceDataModel shareInstance];
     
-    balanceLabel.text = [T0BaseFunction formatterNumberWithDecimal:[dataModel getBalance]];
+    scrollView.userInteractionEnabled = NO;
+    
+    tView.mj_header = [T0RefreshHeader headerWithRefreshingBlock:^{
+        [self loadNewData];
+    }];
 }
 
-- (void)viewDidAppear:(BOOL)animated
+- (void)viewWillAppear:(BOOL)animated
 {
-    [super viewDidAppear:animated];
-    T0NavigationController *nav = (T0NavigationController*)self.navigationController;
-    [nav dismissPageControl];
+    [super viewWillAppear:animated];
+    [self loadNewData];
+}
+
+- (void)updateViewConstraints
+{
+    [super updateViewConstraints];
+    viewConstraint.constant = self.view.frame.size.height;
+    bgImageViewOriginFrame = bgImageView.frame;
+}
+
+#pragma loadNewData
+- (void)loadNewData
+{
+    isLoading = true;
+    [dataModel getDataFromServer];
 }
 
 #pragma Navigation Function
@@ -52,14 +69,11 @@
 #pragma refreshData
 - (void)refreshData
 {
+    self.hud.hidden = YES;
+    isLoading = false;
     balanceLabel.text = [T0BaseFunction formatterNumberWithDecimal:[dataModel getBalance]];
     [tView reloadData];
-}
-
-#pragma ServerError
-- (void)showError
-{
-    
+    [tView.mj_header endRefreshing];
 }
 
 #pragma didReceiveMemoryWarning
@@ -68,23 +82,44 @@
     // Dispose of any resources that can be recreated.
 }
 
-#pragma buttonAction
-- (void)toCharge:(id)sender
+#pragma buttonAction Function
+- (void)initButtonAction:(UIButton*)sender
 {
-    
+    [sender addTarget:self action:@selector(buttonTouchUpInsideAction:) forControlEvents:UIControlEventTouchUpInside];
+    [sender addTarget:self action:@selector(buttonTouchDownAction:) forControlEvents:UIControlEventTouchDown];
+    [sender addTarget:self action:@selector(buttonCancelAction:) forControlEvents:UIControlEventTouchCancel];
+    [sender addTarget:self action:@selector(buttonCancelAction:) forControlEvents:UIControlEventTouchDragExit];
+}
+- (void)buttonTouchUpInsideAction:(UIButton*)sender
+{
+    sender.backgroundColor = MYSSBUTTONDARK;
+    T0MyBankCardViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0MyBankCardViewController"];
+    vc.style = DRAW;
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
+- (void)buttonTouchDownAction:(UIButton*)sender
+{
+    sender.backgroundColor = MYSSBUTTONBLUE;
+}
+
+- (void)buttonCancelAction:(UIButton*)sender
+{
+    sender.backgroundColor = MYSSBUTTONDARK;
 }
 
 #pragma TableViewDelegate/DataSource
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 60;
+    return 50;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     if (section == 0)
     {
-        return 10;
+        return 0.00000000001;
     }
     return 5;
 }
@@ -101,6 +136,10 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
+    if (!isLoading)
+    {
+        [tableView tableViewDisplayWitMsg:@"暂无佣金记录" imageName:@"NoRecord" ifNecessaryForRowCount:[dataModel getCellObjects].count];
+    }
     return [dataModel getCellObjects].count;
 }
 
@@ -113,9 +152,8 @@
     }
     id data = [dataModel getCellObjects][indexPath.section];
     
-    cell.titleLabel.text = [data objectForKey:@"title"];
-    cell.progressLabel.text = [data objectForKey:@"progress"];
-    cell.timeLabel.text = [data objectForKey:@"time"];
+    cell.titleLabel.text = [data objectForKey:@"subject"];
+    cell.timeLabel.text = [data objectForKey:@"createdOn"];
     [T0BaseFunction setColoredLabelText:cell.amountLabel Number:[NSString stringWithFormat:@"%@",[data objectForKey:@"amount"]]];
     
     return cell;

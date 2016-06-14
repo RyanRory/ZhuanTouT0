@@ -12,9 +12,13 @@
 @interface T0ShowPasswordViewController : T0BaseViewController
 
 @property (strong, nonatomic) IBOutlet UILabel *accountLabel;
-@property (strong, nonatomic) IBOutlet T0SmartPlaceholderTextField *passwordTextField;
-@property (strong, nonatomic) IBOutlet UIButton *changePasswordButton;
-@property (strong, nonatomic) IBOutlet UIButton *secureEntryButton;
-@property (readwrite, nonatomic) NSString *account;
+@property (readwrite, nonatomic) NSDictionary *account;
+@property (strong, nonatomic) IBOutlet T0SmartPlaceholderTextField *tradePswdTextField;
+@property (strong, nonatomic) IBOutlet UIButton *tradePswdSecureEntryButton;
+@property (strong, nonatomic) IBOutlet UILabel *communicationPswdStatusLabel;
+@property (strong, nonatomic) IBOutlet T0SmartPlaceholderTextField *communicationPswdTextField;
+@property (strong, nonatomic) IBOutlet UIButton *communicationPswdSecureEntryButton;
+@property (strong, nonatomic) IBOutlet UIButton *changeCommunicationPswdButton;
+@property (strong, nonatomic) IBOutlet UIButton *changeTradePswdButton;
 
 @end

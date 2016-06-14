@@ -39,11 +39,11 @@
     {
         passwordButton.hidden = YES;
         endButton.hidden = YES;
-        self.ReSSButtonLayoutConstraint.priority = 1000;
+        self.ReSSButtonLayoutConstraint.priority = 999;
     }
     
-    [tView.layer setBorderWidth:1.0];
-    [tView.layer setBorderColor:[UIColor colorWithRed:45.0/255.0 green:47.0/255.0 blue:56.0/255.0 alpha:1.0].CGColor];
+//    [tView.layer setBorderWidth:1.0];
+//    [tView.layer setBorderColor:[UIColor colorWithRed:45.0/255.0 green:47.0/255.0 blue:56.0/255.0 alpha:1.0].CGColor];
     
 }
 
@@ -58,15 +58,38 @@
 - (void)initData
 {
     cellObjects = [NSArray arrayWithArray:[data objectForKey:@"stocks"]];
-    if ([[data objectForKey:@"stockAccount"] isKindOfClass:[NSNull class]])
+    if ([[[data objectForKey:@"stockAccount"] objectForKey:@"accountNumber"] isKindOfClass:[NSNull class]])
     {
-        titleLabel.text = @"资金账户？？？？？？";
+        titleLabel.text = @"账户号(暂未登记)";
     }
     else
     {
-        titleLabel.text = [NSString stringWithFormat:@"资金账户%@", [data objectForKey:@"stockAccount"]];
+        titleLabel.text = [NSString stringWithFormat:@"账户号%@", [[data objectForKey:@"stockAccount"] objectForKey:@"accountNumber"]];
     }
+    
     statusLabel.text = [data objectForKey:@"status"];
+    if ([statusLabel.text isEqualToString:@"操盘中"] || [statusLabel.text isEqualToString:@"合作到期"] || [statusLabel.text isEqualToString:@"申请终止"] || [statusLabel.text isEqualToString:@"已结束"])
+    {
+        [recordButton setUserInteractionEnabled:YES];
+        [recordButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    }
+    else
+    {
+        [recordButton setUserInteractionEnabled:NO];
+        [recordButton setTitleColor:MYSSUNABLEGRAY forState:UIControlStateNormal];
+    }
+    
+    if ([statusLabel.text isEqualToString:@"提前终结处理中"] || [statusLabel.text isEqualToString:@"合作到期"] || [statusLabel.text isEqualToString:@"申请终止"] || [statusLabel.text isEqualToString:@"已结束"])
+    {
+        [endButton setUserInteractionEnabled:NO];
+        [endButton setTitleColor:MYSSUNABLEGRAY forState:UIControlStateNormal];
+    }
+    else
+    {
+        [endButton setUserInteractionEnabled:YES];
+        [endButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    }
+    
     modeLabel.text = [data objectForKey:@"profitModel"];
     if ([[data objectForKey:@"nextWithdrawDate"] isKindOfClass:[NSNull class]])
     {
@@ -108,6 +131,15 @@
 {
     sender.backgroundColor = MYSSBUTTONDARK;
     switch (sender.tag) {
+        case 0:
+        {
+            T0WebViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0WebViewController"];
+            vc.titleText = @"合同";
+            vc.url = [NSString stringWithFormat:@"https://www.zhuantouwang.com/Wap/WebView/RegisterStatement"];
+            [[self navigationController]pushViewController:vc animated:YES];
+            break;
+        }
+            
         case 1:
         {
             T0SSRecordViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0SSRecordViewController"];
@@ -119,10 +151,58 @@
     
         case 2:
         {
-            T0ShowPasswordViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0ShowPasswordViewController"];
-            vc.account = titleLabel.text;
-            [self.navigationController pushViewController:vc animated:YES];
+            if ([[[data objectForKey:@"stockAccount"] objectForKey:@"tradePassword"] isKindOfClass:[NSNull class]])
+            {
+                T0SetPasswordViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0SetPasswordViewController"];
+                vc.account = [NSDictionary dictionaryWithDictionary:[data objectForKey:@"stockAccount"]];
+                [self.navigationController pushViewController:vc animated:YES];
+            }
+            else
+            {
+                T0ShowPasswordViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0ShowPasswordViewController"];
+                vc.account = [NSDictionary dictionaryWithDictionary:[data objectForKey:@"stockAccount"]];
+                [self.navigationController pushViewController:vc animated:YES];
+            }
             break;
+        }
+            
+        case 3:
+        {
+            LGAlertView *alertView = [[LGAlertView alloc] initWithTitle:nil message:@"是否确认提前终结?" style:LGAlertViewStyleAlert buttonTitles:@[@"确定"] cancelButtonTitle:@"取消" destructiveButtonTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index){
+                AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+                NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"api/intraday/finish/%@", [data objectForKey:@"id"]]];
+                NSLog(@"%@",URL);
+                [manager POST:URL parameters:nil success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
+                    NSLog(@"%@", responseObject);
+                    if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
+                    {
+                        errorView = [[T0ErrorMessageView alloc]init];
+                        [errorView showInView:self.navigationController.view withMessage:@"提前终结完成" byStyle:ERRORMESSAGESUCCESS];
+                        [self.navigationController popViewControllerAnimated:YES];
+
+                    }
+                    else
+                    {
+                        [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowError" object:[responseObject objectForKey:@"errorMessage"]];
+                    }
+                    
+                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                    NSLog(@"Error: %@", error);
+                    [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
+                    
+                }];
+            } cancelHandler:nil destructiveHandler:nil];
+            alertView.backgroundColor = MYSSBUTTONDARK;
+            alertView.buttonsTitleColor = [UIColor whiteColor];
+            alertView.buttonsBackgroundColorHighlighted = MYSSBUTTONBLUE;
+            alertView.buttonsFont = [UIFont systemFontOfSize:13.0];
+            alertView.messageTextColor = [UIColor whiteColor];
+            alertView.cancelButtonTitleColor = [UIColor whiteColor];
+            alertView.cancelButtonBackgroundColorHighlighted = MYSSBUTTONBLUE;
+            alertView.cancelButtonFont = [UIFont systemFontOfSize:13.0];
+            alertView.separatorsColor = self.view.backgroundColor;
+            [alertView showAnimated:YES completionHandler:nil];
+
         }
             
         default:
@@ -186,6 +266,16 @@
     cell.originalStockAmountLabel.text = [T0BaseFunction formatterNumberWithoutDecimal:[NSString stringWithFormat:@"%@",[object objectForKey:@"initialNoOfShares"]]];
     cell.instanceStockAmountLabel.text = [T0BaseFunction formatterNumberWithoutDecimal:[NSString stringWithFormat:@"%@",[object objectForKey:@"yesterdayNoOfShares"]]];
     cell.marketValueLabel.text = [T0BaseFunction formatterNumberWithDecimal:[NSString stringWithFormat:@"%@",[object objectForKey:@"yesterdayMarketValue"]]];
+    if (indexPath.section == cellObjects.count-1)
+    {
+        cell.shortLine.hidden = YES;
+        cell.bottomLine.hidden = NO;
+    }
+    else
+    {
+        cell.shortLine.hidden = NO;
+        cell.bottomLine.hidden = YES;
+    }
     
     [T0BaseFunction setColoredLabelText:cell.lastDayProfitLabel Number:[NSString stringWithFormat:@"%@",[object objectForKey:@"yesterdayProfit"]]];
     [T0BaseFunction setColoredLabelText:cell.allProfitLabel Number:[NSString stringWithFormat:@"%@",[object objectForKey:@"currentCycleProfit"]]];

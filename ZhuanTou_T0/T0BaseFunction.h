@@ -20,5 +20,8 @@
 + (BOOL)isExistenceNetwork;
 + (NSString*)deleteSpacesForString:(NSString*)str;
 + (void)setColoredLabelText:(UILabel*)label Number:(NSString*)number;
++ (NSString*)addSpacesForString:(NSString*)str;
++ (BOOL)isChinese:(NSString *)str;
++ (NSString*)formatterBankCardNum:(NSString *)str;
 
 @end

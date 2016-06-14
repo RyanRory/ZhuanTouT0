@@ -14,6 +14,7 @@
 @property (strong, nonatomic) IBOutlet UIButton *reloadButton;
 @property (strong, nonatomic) IBOutlet UIWebView *webView;
 
-@property (strong, nonatomic) NSString *url;
+@property (readwrite, nonatomic) NSString *url;
+@property (readwrite, nonatomic) NSString *titleText;
 
 @end

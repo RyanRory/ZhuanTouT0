@@ -40,6 +40,26 @@ static T0LoginDataModel *instance = nil;
     return  password;
 }
 
+- (void)setVCode:(NSString*)str
+{
+    vCode = str;
+}
+
+- (NSString*)getVCode
+{
+    return vCode;
+}
+
+- (void)setSmsCode:(NSString*)str
+{
+    smsCode = str;
+}
+
+- (NSString*)getSmsCode
+{
+    return smsCode;
+}
+
 - (void)saveAllDataToUserDefaults
 {
     NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];

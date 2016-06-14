@@ -38,9 +38,9 @@
 
 - (void)toDiscover:(id)sender
 {
-    T0NavigationController *nav = [[self storyboard]instantiateViewControllerWithIdentifier:@"MainNav"];
-    [nav setModalTransitionStyle:UIModalTransitionStyleFlipHorizontal];
-    [self.navigationController presentViewController:nav animated:NO completion:nil];
+    [self.navigationController dismissViewControllerAnimated:YES completion:^(void){
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowHomePage" object:nil];
+    }];
 }
 
 

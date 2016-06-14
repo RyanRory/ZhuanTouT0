@@ -18,7 +18,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
     [[IQKeyboardManager sharedManager] disableToolbarInViewControllerClass:[UIViewController class]];
-    [[IQKeyboardManager sharedManager] setKeyboardDistanceFromTextField:80.0f];
+    [[IQKeyboardManager sharedManager] setEnable:NO];
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
@@ -65,7 +65,7 @@
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
-        
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
     }];
     
 }

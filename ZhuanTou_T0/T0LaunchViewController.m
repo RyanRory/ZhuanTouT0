@@ -14,7 +14,7 @@
 
 @implementation T0LaunchViewController
 
-@synthesize toLoginButton, toRegisterButton;
+@synthesize toLoginButton, toRegisterButton, bgImageView;
 
 #pragma ViewController LifeCycle
 - (void)viewDidLoad {
@@ -22,19 +22,67 @@
     
     [toLoginButton addTarget:self action:@selector(toLogin:) forControlEvents:UIControlEventTouchUpInside];
     [toRegisterButton addTarget:self action:@selector(toRegister:) forControlEvents:UIControlEventTouchUpInside];
+    toLoginButton.hidden = YES;
+    toRegisterButton.hidden = YES;
+    
+    isLaunch = true;
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    NSString *URL = [BASEURL stringByAppendingString:@"api/auth/checkLogin"];
+    [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
+        NSLog(@"%@", responseObject);
+        if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isAuthenticated"]].boolValue)
+        {
+            settingsDataModel = [T0SettingsDataModel shareInstance];
+            if ([[responseObject objectForKey:@"fullName"] isKindOfClass:[NSNull class]])
+            {
+                [settingsDataModel setIsRealNameSet:false];
+                [settingsDataModel setRealName:@""];
+            }
+            else
+            {
+                [settingsDataModel setIsRealNameSet:true];
+                [settingsDataModel setRealName:[NSString stringWithFormat:@"%@",[responseObject objectForKey:@"fullName"]]];
+            }
+            
+            homePageDataModel = [T0HomePageDataModel shareInstance];
+            [homePageDataModel setData:[responseObject objectForKey:@"todoEvents"]];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self showHomePage];
+            });
+        }
+        else
+        {
+            toLoginButton.hidden = NO;
+            toRegisterButton.hidden = NO;
+            bgImageView.image = [UIImage imageNamed:@"LoginImage"];
+        }
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+        toLoginButton.hidden = NO;
+        toRegisterButton.hidden = NO;
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
+    }];
+    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(showHomePage) name:@"ShowHomePage" object:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self.navigationController setNavigationBarHidden:YES animated:animated];
+    if (!isLaunch)
+    {
+        toLoginButton.hidden = NO;
+        toRegisterButton.hidden = NO;
+        bgImageView.image = [UIImage imageNamed:@"LoginImage"];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    T0NavigationController *nav = (T0NavigationController*)self.navigationController;
-    [nav dismissPageControl];
+    isLaunch = false;
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -63,6 +111,14 @@
 - (void)toRegister:(id)sender
 {
     T0NavigationController *nav = [[self storyboard]instantiateViewControllerWithIdentifier:@"RegisterNav"];
+    [self presentViewController:nav animated:YES completion:nil];
+}
+
+#pragma showHomePage
+- (void)showHomePage
+{
+    T0NavigationController *nav = [[self storyboard]instantiateViewControllerWithIdentifier:@"MainNav"];
+    [nav setModalTransitionStyle:UIModalTransitionStyleFlipHorizontal];
     [self presentViewController:nav animated:YES completion:nil];
 }
 

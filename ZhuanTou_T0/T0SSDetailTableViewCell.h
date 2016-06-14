@@ -17,5 +17,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *lastDayProfitLabel;
 @property (strong, nonatomic) IBOutlet UILabel *allProfitLabel;
 @property (strong, nonatomic) IBOutlet UILabel *sumProfitLabel;
+@property (strong, nonatomic) IBOutlet UIView *bottomLine;
+@property (strong, nonatomic) IBOutlet UIView *shortLine;
 
 @end

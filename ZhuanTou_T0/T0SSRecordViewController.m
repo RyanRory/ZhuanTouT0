@@ -14,7 +14,7 @@
 
 @implementation T0SSRecordViewController
 
-@synthesize tView, orderNo;
+@synthesize tView, orderNo, BalanceButton;
 
 #pragma ViewController LifeCycle
 - (void)viewDidLoad {
@@ -23,8 +23,25 @@
     [self initNavigationBar];
     
     dataModel = [T0SettleRecordDataModel shareInstance];
-    [dataModel getDataFromServer:orderNo];
-    cellObjects = [NSArray arrayWithArray:[dataModel getCellObjects]];
+    
+    BalanceButton.hidden = YES;
+    
+    if ([self.style isEqualToString:RECOMMENDSTOCKCOURCE])
+    {
+        BalanceButton.hidden = NO;
+        BalanceButton.tag = 0;
+        [self initButtonAction:BalanceButton];
+    }
+    
+    tView.mj_header = [T0RefreshHeader headerWithRefreshingBlock:^{
+        [self loadNewData];
+    }];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self loadNewData];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -39,6 +56,13 @@
 {
     [super viewDidDisappear:animated];
     [[NSNotificationCenter defaultCenter]removeObserver:self name:@"GoToDetail" object:nil];
+}
+
+#pragma loadNewData
+- (void)loadNewData
+{
+    isDataLoading = true;
+    [dataModel getDataFromServer:orderNo];
 }
 
 #pragma Navigation Function
@@ -58,14 +82,11 @@
 #pragma refreshData
 - (void)refreshData
 {
+    self.hud.hidden = YES;
+    isDataLoading = false;
     cellObjects = [NSArray arrayWithArray:[dataModel getCellObjects]];
     [tView reloadData];
-}
-
-#pragma ServerError
-- (void)showError
-{
-    
+    [tView.mj_header endRefreshing];
 }
 
 #pragma didReceiveMemoryWarning
@@ -77,6 +98,8 @@
 #pragma GotoDetail
 - (void)goToDetail
 {
+    self.hud.hidden = YES;
+    isLoading = false;
     T0SSReportViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0SSReportViewController"];
     vc.data = [NSDictionary dictionaryWithDictionary:[dataModel getDetailData]];
     [self.navigationController pushViewController:vc animated:YES];
@@ -97,16 +120,23 @@
     long tag = sender.tag%1000;
     if (tag == 2)
     {
-        [dataModel getDetailDataFromServer:orderNo from:[cellObjects[index] objectForKey:@"startDate"] to:[cellObjects[index] objectForKey:@"settleDate"]];
+        if (!isLoading)
+        {
+            self.hud.hidden = NO;
+            isLoading = true;
+            [dataModel getDetailDataFromServer:orderNo from:[cellObjects[index] objectForKey:@"startDate"] to:[cellObjects[index] objectForKey:@"settleDate"]];
+        }
     }
     else if (tag == 1)
     {
         T0SSSettleViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0SSSettleViewController"];
+        vc.orderNo = [cellObjects[index] objectForKey:@"id"];
         [self.navigationController pushViewController:vc animated:YES];
     }
     else
     {
-        
+        T0BalanceViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0BalanceViewController"];
+        [self.navigationController pushViewController:vc animated:YES];
     }
 }
 
@@ -136,7 +166,13 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
     if (section == cellObjects.count-1)
+    {
+        if ([self.style isEqualToString:RECOMMENDSTOCKCOURCE])
+        {
+            return 50;
+        }
         return 0.00000000001;
+    }
     return 10;
 }
 
@@ -147,6 +183,10 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
+    if (!isDataLoading)
+    {
+        [tableView tableViewDisplayWitMsg:@"暂无结算记录" imageName:@"NoRecord" ifNecessaryForRowCount:[dataModel getCellObjects].count];
+    }
     return cellObjects.count;
 }
 
@@ -161,10 +201,11 @@
     
     [self initButtonAction:cell.closeButton];
     cell.closeButton.tag = indexPath.section *1000 + 1;
+    cell.closeButton.hidden = NO;
     if ([self.style isEqualToString:RECOMMENDSTOCKCOURCE])
     {
-        [cell.closeButton setTitle:@"佣金记录" forState:UIControlStateNormal];
-        cell.closeButton.tag = indexPath.section *1000 + 3;
+        cell.closeButton.hidden = YES;
+        cell.constraint.priority = 997;
     }
     [self initButtonAction:cell.reportButton];
     cell.reportButton.tag = indexPath.section *1000 + 2;
@@ -172,6 +213,18 @@
     cell.dateLabel.text = [object objectForKey:@"settleDate"];
     [T0BaseFunction setColoredLabelText:cell.profitLabel Number:[NSString stringWithFormat:@"%@",[object objectForKey:@"earningAmount"]]];
     cell.statusLabel.text = [object objectForKey:@"status"];
+    if ([cell.statusLabel.text isEqualToString:@"已完成打款"])
+    {
+        [cell.closeButton setUserInteractionEnabled:NO];
+        [cell.closeButton setTitleColor:MYSSUNABLEGRAY forState:UIControlStateNormal];
+        [cell.closeButton setTitle:@"已完成打款" forState:UIControlStateNormal];
+    }
+    else
+    {
+        [cell.closeButton setUserInteractionEnabled:YES];
+        [cell.closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [cell.closeButton setTitle:@"我要结算" forState:UIControlStateNormal];
+    }
     
     return cell;
 }

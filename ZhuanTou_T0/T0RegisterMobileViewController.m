@@ -28,6 +28,7 @@
     
     dataModel = [T0RegisterDataModel shareInstance];
     
+    self.hud.hidden = YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -59,9 +60,9 @@
     rightItem.tintColor = [UIColor whiteColor];
     UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithCustomView:[UIButton buttonWithType:UIButtonTypeCustom]];
     self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:leftItem, item, nil];
-    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:rightItem, item, nil];
+    self.navigationItem.rightBarButtonItem = rightItem;
     
-    [self.navigationItem.rightBarButtonItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIFont boldSystemFontOfSize:13], NSFontAttributeName,nil] forState:UIControlStateNormal];
+    [self.navigationItem.rightBarButtonItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIFont boldSystemFontOfSize:14], NSFontAttributeName,nil] forState:UIControlStateNormal];
     
     T0NavigationController *nav = (T0NavigationController*)self.navigationController;
     [nav showPageControl:3];
@@ -69,29 +70,47 @@
 
 - (void)next:(id)sender
 {
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"api/auth/checkMobile/%@?vCode=%@", [T0BaseFunction deleteSpacesForString:[mobileTextField getTextFieldStr]], [T0BaseFunction md5HexDigest:[NSString stringWithFormat:@"rujustkiddingme%@", [T0BaseFunction deleteSpacesForString:[mobileTextField getTextFieldStr]]]]]];
-    [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
-        NSLog(@"%@", responseObject);
-        if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
+    if (!isLoading)
+    {
+        if ([mobileTextField getTextFieldStr].length == 0)
         {
-            [dataModel setMobile:[T0BaseFunction deleteSpacesForString:[mobileTextField getTextFieldStr]]];
-            [dataModel setVCode:[T0BaseFunction md5HexDigest:[NSString stringWithFormat:@"rujustkiddingme%@", [T0BaseFunction deleteSpacesForString:[mobileTextField getTextFieldStr]]]]];
-            T0RegisterSmsCodeViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0RegisterSmsCodeViewController"];
-            [self.navigationController pushViewController:vc animated:YES];
+            errorView = [[T0ErrorMessageView alloc]init];
+            [errorView showInView:self.navigationController.view withMessage:@"请输入手机号码" byStyle:ERRORMESSAGEERROR];
         }
         else
         {
-            descriptionLabel.text = [responseObject objectForKey:@"errorMessage"];
-            descriptionLabel.textColor = ERRORRED;
-            [T0Animator shakeView:self.mobileTextField.textInputView];
-            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+            isLoading = true;
+            self.hud.hidden = NO;
+            AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+            NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"api/auth/checkMobile/%@?vCode=%@", [T0BaseFunction deleteSpacesForString:[mobileTextField getTextFieldStr]], [T0BaseFunction md5HexDigest:[NSString stringWithFormat:@"rujustkiddingme%@", [T0BaseFunction deleteSpacesForString:[mobileTextField getTextFieldStr]]]]]];
+            [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
+                NSLog(@"%@", responseObject);
+                self.hud.hidden = YES;
+                isLoading = false;
+                if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
+                {
+                    [dataModel setMobile:[T0BaseFunction deleteSpacesForString:[mobileTextField getTextFieldStr]]];
+                    [dataModel setVCode:[T0BaseFunction md5HexDigest:[NSString stringWithFormat:@"rujustkiddingme%@", [T0BaseFunction deleteSpacesForString:[mobileTextField getTextFieldStr]]]]];
+                    T0RegisterSmsCodeViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0RegisterSmsCodeViewController"];
+                    vc.style = REGISTER;
+                    [self.navigationController pushViewController:vc animated:YES];
+                }
+                else
+                {
+                    errorView = [[T0ErrorMessageView alloc]init];
+                    [errorView showInView:self.navigationController.view withMessage:[responseObject objectForKey:@"errorMessage"] byStyle:ERRORMESSAGEERROR];
+                    [T0Animator shakeView:self.mobileTextField.textInputView];
+                    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+                }
+                
+            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                NSLog(@"Error: %@", error);
+                isLoading = false;
+                self.hud.hidden = YES;
+                [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
+            }];
         }
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
-        
-    }];
+    }
 }
 
 - (void)cancel:(id)sender

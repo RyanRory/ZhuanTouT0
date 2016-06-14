@@ -14,7 +14,7 @@
 
 @implementation T0MySSViewController
 
-@synthesize tView, titleLabel;
+@synthesize tView, titleLabel, toStockSourceButton;
 
 #pragma ViewController LifeCycle
 - (void)viewDidLoad {
@@ -25,26 +25,41 @@
     if ([self.style isEqualToString:MYSTOCKCOURCE])
     {
         SSDataModel = [T0MySSDataModel shareInstance];
-        [SSDataModel getDataFromServer];
-        cellObjects = [NSMutableArray arrayWithArray:[SSDataModel getCellObjects]];
         titleLabel.text = @"我的股票";
     }
     else
     {
         ReSSDataModel = [T0RecommendSSDataModel shareInstance];
-        [ReSSDataModel getDataFromServer];
-        cellObjects = [NSMutableArray arrayWithArray:[ReSSDataModel getCellObjects]];
         titleLabel.text = @"我的推荐";
     }
     
+    toStockSourceButton.hidden = YES;
+    [self initButtonAction:toStockSourceButton];
+    
+    tView.mj_header = [T0RefreshHeader headerWithRefreshingBlock:^{
+        [self loadNewData];
+    }];
     
 }
 
-- (void)viewDidAppear:(BOOL)animated
+- (void)viewWillAppear:(BOOL)animated
 {
-    [super viewDidAppear:animated];
-    T0NavigationController *nav = (T0NavigationController*)self.navigationController;
-    [nav dismissPageControl];
+    [super viewWillAppear:animated];
+    [self loadNewData];
+}
+
+#pragma loadNewData
+- (void)loadNewData
+{
+    isLoading = true;
+    if ([self.style isEqualToString:MYSTOCKCOURCE])
+    {
+        [SSDataModel getDataFromServer];
+    }
+    else
+    {
+        [ReSSDataModel getDataFromServer];
+    }
 }
 
 #pragma Navigation Function
@@ -64,6 +79,9 @@
 #pragma refreshData
 - (void)refreshData
 {
+    self.hud.hidden = YES;
+    isLoading = false;
+    [tView.mj_header endRefreshing];
     if ([self.style isEqualToString:MYSTOCKCOURCE])
     {
         cellObjects = [NSMutableArray arrayWithArray:[SSDataModel getCellObjects]];
@@ -75,17 +93,37 @@
     [tView reloadData];
 }
 
-#pragma ServerError
-- (void)showError
-{
-    
-}
-
 #pragma didReceiveMemoryWarning
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+#pragma buttonAction Function
+- (void)initButtonAction:(UIButton*)sender
+{
+    [sender addTarget:self action:@selector(buttonTouchUpInsideAction:) forControlEvents:UIControlEventTouchUpInside];
+    [sender addTarget:self action:@selector(buttonTouchDownAction:) forControlEvents:UIControlEventTouchDown];
+    [sender addTarget:self action:@selector(buttonCancelAction:) forControlEvents:UIControlEventTouchCancel];
+    [sender addTarget:self action:@selector(buttonCancelAction:) forControlEvents:UIControlEventTouchDragExit];
+}
+- (void)buttonTouchUpInsideAction:(UIButton*)sender
+{
+    sender.backgroundColor = MYSSBUTTONDARK;
+    T0StockSourceViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0StockSourceViewController"];
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
+- (void)buttonTouchDownAction:(UIButton*)sender
+{
+    sender.backgroundColor = MYSSBUTTONBLUE;
+}
+
+- (void)buttonCancelAction:(UIButton*)sender
+{
+    sender.backgroundColor = MYSSBUTTONDARK;
+}
+
 
 #pragma TableViewDelegate/DataSource
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -134,6 +172,18 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
+    if (!isLoading)
+    {
+        [tableView tableViewDisplayWitMsg:@"暂无记录" imageName:@"NoStockSource" ifNecessaryForRowCount:cellObjects.count];
+        if (cellObjects.count)
+        {
+            toStockSourceButton.hidden = YES;
+        }
+        else
+        {
+            toStockSourceButton.hidden = NO;
+        }
+    }
     return cellObjects.count;
 }
 
@@ -148,13 +198,13 @@
         {
             cell = [[T0MySSTableViewCell1 alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"T0MySSTableViewCell1"];
         }
-        if ([[data objectForKey:@"stockAccount"] isKindOfClass:[NSNull class]])
+        if ([[[data objectForKey:@"stockAccount"] objectForKey:@"accountNumber"] isKindOfClass:[NSNull class]])
         {
-            cell.accountLabel.text = @"资金账户？？？？？？";
+            cell.accountLabel.text = @"账户号(暂未登记)";
         }
         else
         {
-            cell.accountLabel.text = [NSString stringWithFormat:@"资金账户%@", [data objectForKey:@"stockAccount"]];
+            cell.accountLabel.text = [NSString stringWithFormat:@"账户号%@", [[data objectForKey:@"stockAccount"] objectForKey:@"accountNumber"]];
         }
         cell.statusLabel.text = [data objectForKey:@"status"];
         
@@ -180,7 +230,7 @@
         id stock = array[indexPath.row-1];
         cell.nameLabel.text = [stock objectForKey:@"stockName"];
         
-        if ([[data objectForKey:@"status"] isEqualToString:@"操盘中"])
+        if ([[data objectForKey:@"status"] isEqualToString:@"操盘中"] || [[data objectForKey:@"status"] isEqualToString:@"合作到期"])
         {
             [T0BaseFunction setColoredLabelText:cell.lastDayProfitLabel Number:[NSString stringWithFormat:@"%@",[stock objectForKey:@"yesterdayProfit"]]];
             [T0BaseFunction setColoredLabelText:cell.allProfitLabel Number:[NSString stringWithFormat:@"%@",[stock objectForKey:@"currentCycleProfit"]]];
@@ -192,7 +242,6 @@
             cell.allProfitLabel.textColor = MYSSGRAY;
             cell.allProfitLabel.text = @"/";
         }
-        
         
         return cell;
     }

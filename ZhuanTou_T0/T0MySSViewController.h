@@ -14,6 +14,7 @@
 #import "T0RecommendSSDataModel.h"
 
 #import "T0SSDetailViewController.h"
+#import "T0StockSourceViewController.h"
 
 @interface T0MySSViewController : T0BaseViewController<UITableViewDelegate, UITableViewDataSource>
 {
@@ -23,7 +24,9 @@
 }
 @property (strong, nonatomic) IBOutlet UILabel *titleLabel;
 @property (strong, nonatomic) IBOutlet UITableView *tView;
+@property (strong, nonatomic) IBOutlet UIButton *toStockSourceButton;
 @property (readwrite, nonatomic) NSString *style;
+@property (strong, nonatomic) IBOutlet T0ProgressHUDView *hud;
 
 
 @end

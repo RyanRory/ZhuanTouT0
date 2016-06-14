@@ -8,13 +8,18 @@
 
 #import "T0BaseViewController.h"
 #import "T0SSSettleTableViewCell.h"
+#import "T0SettleViewDataModel.h"
 
 @interface T0SSSettleViewController : T0BaseViewController<UITableViewDelegate, UITableViewDataSource>
 {
-    NSMutableArray *cellObjects;
+    NSArray *cellObjects;
+    T0SettleViewDataModel *dataModel;
 }
 
 @property (strong, nonatomic) IBOutlet UIButton *finshButton;
 @property (strong, nonatomic) IBOutlet UITableView *tView;
+@property (strong, nonatomic) IBOutlet T0ProgressHUDView *hud;
+
+@property (strong, nonatomic) NSString *orderNo;
 
 @end

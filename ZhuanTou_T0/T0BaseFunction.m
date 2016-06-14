@@ -114,4 +114,37 @@
     }
 }
 
++ (NSString*)addSpacesForString:(NSString*)str
+{
+    NSMutableString *tempStr = [NSMutableString stringWithString:str];
+    for (long i = str.length-1; i > 0; i--)
+    {
+        [tempStr insertString:@" " atIndex:i];
+    }
+    return tempStr;
+}
+
++ (BOOL)isChinese:(NSString *)str
+{
+    for(int i=0; i< [str length];i++)
+    {
+        int a = [str characterAtIndex:i];
+        if( a > 0x4e00 && a < 0x9fff)
+        {
+            return YES;
+        }
+    }
+    return NO;
+}
+
++ (NSString*)formatterBankCardNum:(NSString *)str
+{
+    NSMutableString *tempStr = [NSMutableString stringWithString:str];
+    for (long i = str.length-str.length%4; i>0; i-=4)
+    {
+        [tempStr insertString:@" " atIndex:i];
+    }
+    return tempStr;
+}
+
 @end

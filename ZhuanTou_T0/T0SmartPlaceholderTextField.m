@@ -223,13 +223,16 @@
 {
     if (isNumberFomatterEntry)
     {
-        if ([self.text rangeOfString:@"."].location != NSNotFound)
+        if (self.text.length != 0)
         {
-            self.text = [T0BaseFunction formatterNumberWithDecimal:textFieldStr];
-        }
-        else
-        {
-            self.text = [T0BaseFunction formatterNumberWithoutDecimal:textFieldStr];
+            if ([self.text rangeOfString:@"."].location != NSNotFound)
+            {
+                self.text = [T0BaseFunction formatterNumberWithDecimal:textFieldStr];
+            }
+            else
+            {
+                self.text = [T0BaseFunction formatterNumberWithoutDecimal:textFieldStr];
+            }
         }
     }
 }
@@ -243,7 +246,7 @@
     if (flyUp)
     {
         [sender setAlpha:1.0f];
-        CGAffineTransform t = CGAffineTransformMakeTranslation(0-x, -28);
+        CGAffineTransform t = CGAffineTransformMakeTranslation(0-x, -23);
         t = CGAffineTransformScale(t, 0.75, 0.75);
         sender.transform = t;
     }

@@ -14,7 +14,7 @@
 
 @implementation T0InputPasswordViewController
 
-@synthesize accountLabel, statusLabel, passwordTextField, hadAPassword, account;
+@synthesize accountLabel, passwordTextField, account, style;
 
 #pragma ViewController LifeCycle
 - (void)viewDidLoad {
@@ -22,23 +22,34 @@
     
     [self initNavigationBar];
     
-    accountLabel.text = account;
-    passwordTextField.delegate = self;
-    [passwordTextField becomeFirstResponder];
-    [passwordTextField setSecureTextEntry:YES];
-    if (hadAPassword)
+    if ([[account objectForKey:@"accountNumber"] isKindOfClass:[NSNull class]])
     {
-        statusLabel.text = @"";
-        [passwordTextField setPlaceHolderText:@"请输入新的交易密码"];
-        [passwordTextField setPlaceHolderChangeText:@"交易密码"];
+        accountLabel.text = @"账户号(暂未登记)";
     }
     else
     {
-        statusLabel.text = @"您还未递交您的交易密码，请完成递交。";
-        [passwordTextField setPlaceHolderText:@"请输入您的交易密码"];
-        [passwordTextField setPlaceHolderChangeText:@"交易密码"];
+        accountLabel.text = [NSString stringWithFormat:@"账户号%@", [account objectForKey:@"accountNumber"]];
     }
     
+    passwordTextField.delegate = self;
+    [passwordTextField becomeFirstResponder];
+    [passwordTextField setSecureTextEntry:YES];
+
+    if (style == 0)
+    {
+        [passwordTextField setPlaceHolderText:@"请输入新的交易密码"];
+        [passwordTextField setPlaceHolderChangeText:@"交易密码"];
+    }
+    else if (style == 1)
+    {
+        [passwordTextField setPlaceHolderText:@"请输入您的通讯密码"];
+        [passwordTextField setPlaceHolderChangeText:@"通讯密码"];
+    }
+    else
+    {
+        [passwordTextField setPlaceHolderText:@"请输入新的通讯密码"];
+        [passwordTextField setPlaceHolderChangeText:@"通讯密码"];
+    }
 }
 
 #pragma didReceiveMemoryWarning
@@ -61,7 +72,64 @@
 
 - (void)next:(id)sender
 {
-    [self.navigationController popViewControllerAnimated:YES];
+    if (!isLoading)
+    {
+        if ([passwordTextField getTextFieldStr].length == 0)
+        {
+            errorView = [[T0ErrorMessageView alloc]init];
+            if (style == 0)
+            {
+                [errorView showInView:self.navigationController.view withMessage:@"请输入交易密码" byStyle:ERRORMESSAGEERROR];
+            }
+            else
+            {
+                [errorView showInView:self.navigationController.view withMessage:@"请输入通讯密码" byStyle:ERRORMESSAGEERROR];
+            }
+        }
+        else
+        {
+            isLoading = true;
+            AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+            NSString *URL = [BASEURL stringByAppendingString:[NSString stringWithFormat:@"api/intraday/updateStockAccount"]];
+            NSDictionary *parameters;
+            if (style == 0)
+            {
+                parameters = @{@"stockAccountId":[account objectForKey:@"stockAccountId"],
+                               @"tradePassword":[passwordTextField getTextFieldStr]};
+            }
+            else
+            {
+                parameters = @{@"stockAccountId":[account objectForKey:@"stockAccountId"],
+                               @"commPassword":[passwordTextField getTextFieldStr]};
+            }
+            [manager POST:URL parameters:parameters success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
+                NSLog(@"%@", responseObject);
+                if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
+                {
+                    errorView = [[T0ErrorMessageView alloc]init];
+                    if (style == 1)
+                    {
+                        [errorView showInView:self.navigationController.view withMessage:@"递交密码成功" byStyle:ERRORMESSAGESUCCESS];
+                    }
+                    else
+                    {
+                        [errorView showInView:self.navigationController.view withMessage:@"修改密码成功" byStyle:ERRORMESSAGESUCCESS];
+                    }
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        [self.navigationController popViewControllerAnimated:YES];
+                    });
+                }
+                else
+                {
+                    [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowError" object:[responseObject objectForKey:@"errorMessage"]];
+                }
+                
+            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                NSLog(@"Error: %@", error);
+                [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
+            }];
+        }
+    }
 }
 
 - (void)cancel:(id)sender
