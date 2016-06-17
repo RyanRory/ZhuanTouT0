@@ -18,6 +18,7 @@
     {
         buttonArray = [[NSMutableArray alloc]init];
         [self initButtons];
+        flag = false;
     }
     return self;
 }
@@ -28,6 +29,7 @@
     {
         buttonArray = [[NSMutableArray alloc]init];
         [self initButtons];
+        flag = false;
     }
     return self;
 }
@@ -37,6 +39,7 @@
     for (int i = 0; i < 5; i++)
     {
         UIButton *button = [[UIButton alloc]initWithFrame:CGRectMake(0, 31*i, self.bounds.size.width, 30)];
+        [button addTarget:self action:@selector(buttonTouchUpInsideAction:) forControlEvents:UIControlEventTouchUpInside];
         [button setTitleColor:[UIColor colorWithWhite:1 alpha:0.9] forState:UIControlStateNormal];
         [buttonArray addObject:button];
         [self addSubview:button];
@@ -61,6 +64,22 @@
         [button setContentHorizontalAlignment:UIControlContentHorizontalAlignmentFill];
         [button setTitleEdgeInsets:UIEdgeInsetsMake(0, 13, 0, 0)];
     }
+}
+
+- (void)buttonTouchUpInsideAction:(id)sender
+{
+    flag = true;
+}
+
+
+- (BOOL)isButtonClicked
+{
+    return flag;
+}
+
+- (void)textFieldEditing
+{
+    flag = false;
 }
 
 @end

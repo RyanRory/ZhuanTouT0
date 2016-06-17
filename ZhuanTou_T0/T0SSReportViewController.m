@@ -59,7 +59,7 @@
         }
     }
     
-    if (lineChartData.count <=5)
+    if (lineChartData.count <=6)
     {
         for (int i = 0; i < lineChartData.count; i++)
         {
@@ -68,7 +68,7 @@
     }
     else
     {
-        int betweens = floor(lineChartData.count/4);
+        int betweens = floor((lineChartData.count-1)/4);
         for (int i = 0, j = 0; j < 5; j++, i+=betweens)
         {
             [xLabels addObject:[NSString stringWithFormat:@"%@",[lineChartData[i] objectForKey:@"date"]]];
@@ -76,7 +76,9 @@
     }
     
     min = floor(min);
+    min = [T0BaseFunction significanceDigit:min isMax:NO];
     max = ceil(max);
+    max = [T0BaseFunction significanceDigit:max isMax:YES];
     double temp = (max-min)/5;
     for (int i = 0; i < 6; i++)
     {
@@ -91,7 +93,7 @@
     
     [T0BaseFunction setColoredLabelText:allProfitLabel Number:[NSString stringWithFormat:@"%@",[data objectForKey:@"cycleTotalProfit"]]];
     [T0BaseFunction setColoredLabelText:realProfitLabel Number:[NSString stringWithFormat:@"%@",[data objectForKey:@"cycleRealProfit"]]];
-    rateLabel.text = @"40%";
+    rateLabel.text = [data objectForKey:@"profitModel"];
     
     [chooseView setTitle:@""];
     [chooseView addButtons:[NSArray arrayWithObjects:@"当期T0总收益曲线", @"当期实际到手收益曲线", nil] withMarginBetween:15 withMarginSides:4];
@@ -106,7 +108,7 @@
     yLabels = [[NSMutableArray alloc]init];
     points = [[NSMutableArray alloc]init];
     
-    [self initChartData:@"dailyTotalProfit"];
+    [self initChartData:@"cycleTotalProfit"];
 }
 
 #pragma initChart
@@ -125,7 +127,7 @@
 {
     if ([chooseView.buttonOnlyEngine getSelectedButtonTag] == 0)
     {
-        [self initChartData:@"dailyTotalProfit"];
+        [self initChartData:@"cycleTotalProfit"];
         [lineChartView setXLabels:xLabels];
         [lineChartView setYLabels:yLabels];
         [lineChartView setPoints:points];
@@ -133,7 +135,7 @@
     }
     else
     {
-        [self initChartData:@"dailyRealProfit"];
+        [self initChartData:@"cycleRealProfit"];
         [lineChartView setXLabels:xLabels];
         [lineChartView setYLabels:yLabels];
         [lineChartView setPoints:points];

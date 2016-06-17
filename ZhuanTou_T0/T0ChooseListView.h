@@ -9,9 +9,15 @@
 #import <UIKit/UIKit.h>
 
 @interface T0ChooseListView : UIView
+{
+    BOOL flag;
+}
 
 @property (strong, nonatomic) NSMutableArray *buttonArray;
 
 - (void)setButtonTitles:(NSArray*)titles;
+
+- (BOOL)isButtonClicked;
+- (void)textFieldEditing;
 
 @end

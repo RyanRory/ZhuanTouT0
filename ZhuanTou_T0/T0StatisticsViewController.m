@@ -14,7 +14,7 @@
 
 @implementation T0StatisticsViewController
 
-@synthesize lineChartView, grandTotalNumLabel, operatingTotalNumLabel, yesterdayIncomeLabel, availableNumLabel,recordButton, chartView, bgImageView;
+@synthesize lineChartView, chartView, bgImageView, allStockProfitLabel, yesterdayStockProfitLabel, allBrokerProfitLabel, yesterdayBrokerProfitLabel, grandTotalNumLabel;
 @synthesize scrollView, viewHeight;
 
 #pragma ViewController LifeCycle
@@ -22,8 +22,6 @@
     [super viewDidLoad];
     
     [self initNavigationBar];
-    
-    [self initButtonAction:recordButton];
     
     [self initChart];
     
@@ -39,7 +37,7 @@
 - (void)updateViewConstraints
 {
     [super updateViewConstraints];
-    viewHeight.constant = SCREEN_HEIGHT-64-45;
+    viewHeight.constant = SCREEN_HEIGHT-64;
     bgImageViewOriginFrame = bgImageView.frame;
 }
 
@@ -73,7 +71,7 @@
         }
     }
     
-    if (lineChartData.count <=5)
+    if (lineChartData.count <=6)
     {
         for (int i = 0; i < lineChartData.count; i++)
         {
@@ -82,7 +80,7 @@
     }
     else
     {
-        int betweens = floor(lineChartData.count/4);
+        int betweens = floor((lineChartData.count-1)/4);
         for (int i = 0, j = 0; j < 5; j++, i+=betweens)
         {
             [xLabels addObject:[NSString stringWithFormat:@"%@",[lineChartData[i] objectForKey:@"date"]]];
@@ -90,7 +88,9 @@
     }
     
     min = floor(min);
+    min = [T0BaseFunction significanceDigit:min isMax:NO];
     max = ceil(max);
+    max = [T0BaseFunction significanceDigit:max isMax:YES];
     double temp = (max-min)/5;
     for (int i = 0; i < 6; i++)
     {
@@ -108,9 +108,7 @@
 {
     data = [NSDictionary dictionaryWithDictionary:[dataModel getData]];
     grandTotalNumLabel.text = [T0BaseFunction formatterNumberWithDecimal:[NSString stringWithFormat:@"%@", [data objectForKey:@"cumProfit"]]];
-    operatingTotalNumLabel.text = [T0BaseFunction formatterNumberWithDecimal:[NSString stringWithFormat:@"%@", [data objectForKey:@"runningAssets"]]];
-    [T0BaseFunction setColoredLabelText:yesterdayIncomeLabel Number:[NSString stringWithFormat:@"%@", [data objectForKey:@"yesterdayProfit"]]];
-    availableNumLabel.text = [T0BaseFunction formatterNumberWithDecimal:[NSString stringWithFormat:@"%@", [data objectForKey:@"fundsAvailable"]]];
+    
     lineChartData = [NSMutableArray arrayWithArray:[data objectForKey:@"dailyStats"]];
     xLabels = [NSMutableArray arrayWithObjects:@"", @"", @"", @"", @"", @"", @"", @"", @"", nil];
     yLabels = [NSMutableArray arrayWithObjects:@"", @"", @"", @"", @"", @"", @"", nil];
@@ -131,7 +129,7 @@
 #pragma initChart
 - (void)initChart
 {
-    lineChartView = [[T0LineChartView alloc]initWithFrame:CGRectMake(4, 18, SCREEN_WIDTH-24, SCREEN_HEIGHT-216-SCREEN_WIDTH/32*21)];
+    lineChartView = [[T0LineChartView alloc]initWithFrame:CGRectMake(4, 20, SCREEN_WIDTH-24, SCREEN_HEIGHT-204-SCREEN_WIDTH/32*21)];
     [chartView addSubview:lineChartView];
 }
 
@@ -162,32 +160,6 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-}
-
-#pragma buttonAction
-#pragma buttonAction Function
-- (void)initButtonAction:(UIButton*)sender
-{
-    [sender addTarget:self action:@selector(buttonTouchUpInsideAction:) forControlEvents:UIControlEventTouchUpInside];
-    [sender addTarget:self action:@selector(buttonTouchDownAction:) forControlEvents:UIControlEventTouchDown];
-    [sender addTarget:self action:@selector(buttonCancelAction:) forControlEvents:UIControlEventTouchCancel];
-    [sender addTarget:self action:@selector(buttonCancelAction:) forControlEvents:UIControlEventTouchDragExit];
-}
-- (void)buttonTouchUpInsideAction:(UIButton*)sender
-{
-    sender.backgroundColor = MYSSBUTTONDARK;
-    T0BalanceViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0BalanceViewController"];
-    [self.navigationController pushViewController:vc animated:YES];
-}
-
-- (void)buttonTouchDownAction:(UIButton*)sender
-{
-    sender.backgroundColor = MYSSBUTTONBLUE;
-}
-
-- (void)buttonCancelAction:(UIButton*)sender
-{
-    sender.backgroundColor = MYSSBUTTONDARK;
 }
 
 #pragma scrollViewDelegate

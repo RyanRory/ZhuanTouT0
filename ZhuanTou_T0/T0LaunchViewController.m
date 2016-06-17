@@ -44,6 +44,7 @@
                 [settingsDataModel setIsRealNameSet:true];
                 [settingsDataModel setRealName:[NSString stringWithFormat:@"%@",[responseObject objectForKey:@"fullName"]]];
             }
+            [settingsDataModel setMobile:[NSString stringWithFormat:@"%@", [responseObject objectForKey:@"mobilePhone"]]];
             
             homePageDataModel = [T0HomePageDataModel shareInstance];
             [homePageDataModel setData:[responseObject objectForKey:@"todoEvents"]];
@@ -53,9 +54,11 @@
         }
         else
         {
-            toLoginButton.hidden = NO;
-            toRegisterButton.hidden = NO;
-            bgImageView.image = [UIImage imageNamed:@"LoginImage"];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                toLoginButton.hidden = NO;
+                toRegisterButton.hidden = NO;
+                bgImageView.image = [UIImage imageNamed:@"LoginImage"];
+            });
         }
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

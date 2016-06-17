@@ -40,8 +40,19 @@ static T0MessageDataModel *instance = nil;
         NSLog(@"%@", responseObject);
         [cellObjects addObjectsFromArray:[responseObject objectForKey:@"messages"]];
         pageIndex++;
+        isNewMessage = false;
+        for (int i = 0; i < cellObjects.count; i++)
+        {
+            id data = cellObjects[i];
+            if (![NSString stringWithFormat:@"%@", [data objectForKey:@"isRead"]].boolValue)
+            {
+                isNewMessage = true;
+                break;
+            }
+        }
         
         [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:nil];
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"NewMessage" object:nil];
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
@@ -58,6 +69,11 @@ static T0MessageDataModel *instance = nil;
 {
     [cellObjects removeAllObjects];
     pageIndex = 0;
+}
+
+- (BOOL)isNewMessage
+{
+    return  isNewMessage;
 }
 
 

@@ -12,6 +12,7 @@
 
 @property (strong, nonatomic) IBOutlet UILabel *contentLabel;
 @property (strong, nonatomic) IBOutlet UILabel *dateLabel;
+@property (strong, nonatomic) IBOutlet UIView *isReadView;
 
 - (void)setContentText:(NSString *)text;
 

@@ -41,14 +41,9 @@
     self.errorLabel.alpha = 0;
     //进入页面自动发送验证码
     [self sendSmsCode:NO];
-    [smsCodeTextField becomeFirstResponder];
     
     self.hud.hidden = YES;
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
+    
     [smsCodeTextField becomeFirstResponder];
 }
 
@@ -64,6 +59,7 @@
     {
         [nav showPageControl:2];
     }
+    [smsCodeTextField becomeFirstResponder];
 }
 
 #pragma timer事件
@@ -203,6 +199,7 @@
                     [dataModel setSmsCode:[smsCodeTextField getTextFieldStr]];
                     T0RegisterPasswordViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0RegisterPasswordViewController"];
                     [self.navigationController pushViewController:vc animated:YES];
+                    [smsCodeTextField resignFirstResponder];
                 }
                 else
                 {
@@ -243,6 +240,7 @@
                     [loginDataModel setSmsCode:[smsCodeTextField getTextFieldStr]];
                     T0ResetPswdViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0ResetPswdViewController"];
                     [self.navigationController pushViewController:vc animated:YES];
+                    [smsCodeTextField resignFirstResponder];
                 }
                 else
                 {
@@ -263,11 +261,13 @@
 - (void)back:(id)sender
 {
     [self.navigationController popViewControllerAnimated:YES];
+    [smsCodeTextField resignFirstResponder];
 }
 
 - (void)cancel:(id)sender
 {
     [self dismissViewControllerAnimated:YES completion:nil];
+    [smsCodeTextField resignFirstResponder];
 }
 
 #pragma TextField Delegate

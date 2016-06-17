@@ -172,7 +172,7 @@
                 if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
                 {
                     errorView = [[T0ErrorMessageView alloc]init];
-                    [errorView showInView:self.navigationController.view withMessage:@"绑定银行卡成功" byStyle:ERRORMESSAGESUCCESS];
+                    [errorView showInView:self.navigationController.view withMessage:@"添加银行卡成功" byStyle:ERRORMESSAGESUCCESS];
                     [self.navigationController popViewControllerAnimated:YES];
                 }
                 else

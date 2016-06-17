@@ -13,6 +13,7 @@
 		A4011E951D07E96A00761033 /* T0BaseButton.m in Sources */ = {isa = PBXBuildFile; fileRef = A4011E941D07E96A00761033 /* T0BaseButton.m */; };
 		A4011E991D07FFAD00761033 /* T0BalanceHeadTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A4011E981D07FFAD00761033 /* T0BalanceHeadTableViewCell.m */; };
 		A404C5271D0BCA9C004DEDC5 /* T0HomePageDataModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A404C5261D0BCA9C004DEDC5 /* T0HomePageDataModel.m */; };
+		A40CCFDC1D139F5A0022DA23 /* T0SSDetailTimeTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A40CCFDB1D139F5A0022DA23 /* T0SSDetailTimeTableViewCell.m */; };
 		A437410F1CF41E8D0021DABD /* T0AddBankCardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A437410E1CF41E8D0021DABD /* T0AddBankCardViewController.m */; };
 		A43741121CF7FECB0021DABD /* T0HomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A43741111CF7FECB0021DABD /* T0HomeViewController.m */; };
 		A43741181CFC22920021DABD /* T0SSDetailTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A43741171CFC22920021DABD /* T0SSDetailTableViewCell.m */; };
@@ -129,6 +130,8 @@
 		A4011E981D07FFAD00761033 /* T0BalanceHeadTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = T0BalanceHeadTableViewCell.m; sourceTree = "<group>"; };
 		A404C5251D0BCA9C004DEDC5 /* T0HomePageDataModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = T0HomePageDataModel.h; sourceTree = "<group>"; };
 		A404C5261D0BCA9C004DEDC5 /* T0HomePageDataModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = T0HomePageDataModel.m; sourceTree = "<group>"; };
+		A40CCFDA1D139F5A0022DA23 /* T0SSDetailTimeTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = T0SSDetailTimeTableViewCell.h; sourceTree = "<group>"; };
+		A40CCFDB1D139F5A0022DA23 /* T0SSDetailTimeTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = T0SSDetailTimeTableViewCell.m; sourceTree = "<group>"; };
 		A437410D1CF41E8D0021DABD /* T0AddBankCardViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = T0AddBankCardViewController.h; sourceTree = "<group>"; };
 		A437410E1CF41E8D0021DABD /* T0AddBankCardViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = T0AddBankCardViewController.m; sourceTree = "<group>"; };
 		A43741101CF7FECB0021DABD /* T0HomeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = T0HomeViewController.h; sourceTree = "<group>"; };
@@ -926,6 +929,8 @@
 				A4B292361CF2F2FA002CE6B4 /* T0MySSTableViewCell3.m */,
 				A43741161CFC22920021DABD /* T0SSDetailTableViewCell.h */,
 				A43741171CFC22920021DABD /* T0SSDetailTableViewCell.m */,
+				A40CCFDA1D139F5A0022DA23 /* T0SSDetailTimeTableViewCell.h */,
+				A40CCFDB1D139F5A0022DA23 /* T0SSDetailTimeTableViewCell.m */,
 			);
 			name = "View(5)";
 			sourceTree = "<group>";
@@ -1293,6 +1298,7 @@
 				A4A8CFB51D042656001B209E /* T0MessageViewController.m in Sources */,
 				A404C5271D0BCA9C004DEDC5 /* T0HomePageDataModel.m in Sources */,
 				A4B291831CF2D465002CE6B4 /* T0BorderedButton.m in Sources */,
+				A40CCFDC1D139F5A0022DA23 /* T0SSDetailTimeTableViewCell.m in Sources */,
 				A4B291C31CF2DE88002CE6B4 /* T0StockSourceTableViewCell.m in Sources */,
 				A4A8CFD71D05C889001B209E /* T0SettingsDataModel.m in Sources */,
 				A4B291D01CF2DF9B002CE6B4 /* T0StockSourceChooseView.m in Sources */,

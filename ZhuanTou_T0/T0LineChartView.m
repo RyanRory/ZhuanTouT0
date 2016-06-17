@@ -55,7 +55,7 @@
     {
         if (points.count > 5)
         {
-            xLabelMargin = (self.frame.size.width+10)/(points.count-0.5)*(points.count%4-1);
+            xLabelMargin = (self.frame.size.width+10)/(points.count-0.5)*((points.count-1)%4);
         }
         else
         {
@@ -71,7 +71,7 @@
         
         for (int i = 1; i < xLabels.count; i++)
         {
-            UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(1.0+(self.frame.size.width+10)/points.count*(i*floor(points.count/4))-xlabelWidth/2, self.frame.size.height-10, xlabelWidth, 10)];
+            UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(1.0+(self.frame.size.width+10)/points.count*(i*floor((points.count-1)/4))-xlabelWidth/2, self.frame.size.height-10, xlabelWidth, 10)];
             label.text = xLabels[i];
             label.textColor = MYSSGRAY;
             label.textAlignment = 1;
@@ -94,13 +94,13 @@
 {
     if (yTextLabels.count == 0)
     {
-        ylabelHeight = (self.frame.size.height-12)/(yLabels.count+0.5);
+        ylabelHeight = (self.frame.size.height-12)/yLabels.count;
         for (int i = 0; i < yLabels.count; i++)
         {
-            UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(1, ylabelHeight*i, 30, ylabelHeight)];
+            UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(1, ylabelHeight*i, 50, ylabelHeight)];
             label.text = yLabels[i];
             label.textColor = MYSSGRAY;
-            label.textAlignment = 1;
+            label.textAlignment = 0;
             label.font = [UIFont systemFontOfSize:9.0f];
             [self addSubview:label];
             [yTextLabels addObject:label];
@@ -129,14 +129,14 @@
     
     for (int i = 0; i < yLabels.count; i++)
     {
-        UIView *line = [[UIView alloc]initWithFrame:CGRectMake(31, ylabelHeight*(i+0.5), self.frame.size.width-31, 1)];
+        UIView *line = [[UIView alloc]initWithFrame:CGRectMake(36, ylabelHeight*(i+0.5), self.frame.size.width-31, 1)];
         line.backgroundColor = MYSSBORDERGRAY;
         [self addSubview:line];
     }
     
     for (int i = 0; i <(xLabels.count-1)/2; i++)
     {
-        UIView *rectangle = [[UIView alloc]initWithFrame:CGRectMake(1.0+(self.frame.size.width+10)/points.count*((i*2+1)*floor(points.count/4)), 0, (self.frame.size.width+10)/points.count*floor(points.count/4), self.frame.size.height-12)];
+        UIView *rectangle = [[UIView alloc]initWithFrame:CGRectMake(1.0+(self.frame.size.width+10)/points.count*((i*2+1)*floor((points.count-1)/4)), 0, (self.frame.size.width+10)/points.count*floor((points.count-1)/4), self.frame.size.height-12)];
         rectangle.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.1];
         [self addSubview:rectangle];
     }
@@ -181,7 +181,7 @@
 
 - (double)calculatePointY:(int)index
 {
-    return (self.frame.size.height-ylabelHeight*1.5)/([NSString stringWithFormat:@"%@",yLabels[0]].doubleValue - [NSString stringWithFormat:@"%@",yLabels[yLabels.count-1]].doubleValue)*([NSString stringWithFormat:@"%@",yLabels[0]].doubleValue - [NSString stringWithFormat:@"%@",points[index]].doubleValue)+0.5*ylabelHeight;
+    return (self.frame.size.height-12-ylabelHeight)/([NSString stringWithFormat:@"%@",yLabels[0]].doubleValue - [NSString stringWithFormat:@"%@",yLabels[yLabels.count-1]].doubleValue)*([NSString stringWithFormat:@"%@",yLabels[0]].doubleValue - [NSString stringWithFormat:@"%@",points[index]].doubleValue)+0.5*ylabelHeight;
 }
 
 - (void)startDrawlineChart

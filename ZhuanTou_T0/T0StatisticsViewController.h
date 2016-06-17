@@ -21,15 +21,15 @@
 }
 
 @property (strong, nonatomic) T0LineChartView *lineChartView;
-@property (strong, nonatomic) IBOutlet UILabel *grandTotalNumLabel;
-@property (strong, nonatomic) IBOutlet UIButton *recordButton;
 @property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
-@property (strong, nonatomic) IBOutlet UILabel *operatingTotalNumLabel;
-@property (strong, nonatomic) IBOutlet UILabel *yesterdayIncomeLabel;
-@property (strong, nonatomic) IBOutlet UILabel *availableNumLabel;
 @property (strong, nonatomic) IBOutlet UIView *chartView;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *viewHeight;
 @property (strong, nonatomic) IBOutlet UIImageView *bgImageView;
 @property (strong, nonatomic) IBOutlet T0ProgressHUDView *hud;
+@property (strong, nonatomic) IBOutlet UILabel *allStockProfitLabel;
+@property (strong, nonatomic) IBOutlet UILabel *yesterdayStockProfitLabel;
+@property (strong, nonatomic) IBOutlet UILabel *allBrokerProfitLabel;
+@property (strong, nonatomic) IBOutlet UILabel *yesterdayBrokerProfitLabel;
+@property (strong, nonatomic) IBOutlet UILabel *grandTotalNumLabel;
 
 @end

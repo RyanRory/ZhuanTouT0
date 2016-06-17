@@ -8,6 +8,7 @@
 
 #import "T0BaseViewController.h"
 #import "T0HomePageDataModel.h"
+#import "T0MessageDataModel.h"
 
 #import "T0StockSourceViewController.h"
 #import "T0MySSViewController.h"
@@ -18,11 +19,12 @@
 #import "T0MessageViewController.h"
 #import "T0SSSettleViewController.h"
 
-@interface T0HomeViewController : T0BaseViewController
+@interface T0HomeViewController : T0BaseViewController<UIGestureRecognizerDelegate>
 {
     NSArray *views, *imageViews, *labels, *buttons;
     BOOL animatedFlag;
     T0HomePageDataModel *dataModel;
+    T0MessageDataModel *messageDataModel;
 }
 
 @property (strong, nonatomic) IBOutlet UIView *topBgView;
@@ -57,5 +59,7 @@
 @property (strong, nonatomic) IBOutlet UIImageView *incomeImage;
 @property (strong, nonatomic) IBOutlet UILabel *incomeLabel;
 @property (strong, nonatomic) IBOutlet UIButton *incomeButton;
+
+@property (strong, nonatomic) UIView *badge;
 
 @end

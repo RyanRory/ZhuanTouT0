@@ -112,21 +112,17 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 50;
+    return 58;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    if (section == 0)
-    {
-        return 0.00000000001;
-    }
-    return 5;
+    return 0.00000000001;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
-    return 5;
+    return 0.00000000001;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -155,6 +151,16 @@
     cell.titleLabel.text = [data objectForKey:@"subject"];
     cell.timeLabel.text = [data objectForKey:@"createdOn"];
     [T0BaseFunction setColoredLabelText:cell.amountLabel Number:[NSString stringWithFormat:@"%@",[data objectForKey:@"amount"]]];
+    if ([[data objectForKey:@"status"] isKindOfClass:[NSNull class]])
+    {
+        cell.statusLabel.text = @"";
+        cell.titleConstraint.constant = 0;
+    }
+    else
+    {
+        cell.statusLabel.text = [NSString stringWithFormat:@"%@", [data objectForKey:@"status"]];
+        cell.titleConstraint.constant = -4;
+    }
     
     return cell;
 }

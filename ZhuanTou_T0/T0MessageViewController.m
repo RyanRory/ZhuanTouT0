@@ -28,7 +28,15 @@
         [self loadNewData];
     }];
     
-    [self loadNewData];
+    cellObjects = [NSArray arrayWithArray:[dataModel getCellObjects]];
+    if (cellObjects.count > 0)
+    {
+        self.hud.hidden = YES;
+        if ([dataModel isNewMessage])
+        {
+            [self readAllMessages];
+        }
+    }
 }
 
 #pragma loadNewData
@@ -61,12 +69,32 @@
     [tView.mj_header endRefreshing];
     cellObjects = [NSArray arrayWithArray:[dataModel getCellObjects]];
     [tView reloadData];
+    if ([dataModel isNewMessage])
+    {
+        [self readAllMessages];
+    }
 }
 
 #pragma didReceiveMemoryWarning
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma readAllMesssages
+- (void)readAllMessages
+{
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    NSString *URL = [BASEURL stringByAppendingString:@"api/account/readMessages"];
+    [manager POST:URL parameters:nil success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
+        NSLog(@"%@", responseObject);
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+        self.hud.hidden = YES;
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
+    }];
+
 }
 
 #pragma TableViewDelegate/DataSource
@@ -115,6 +143,18 @@
     
     [cell setContentText:[NSString stringWithFormat:@"%@", [data objectForKey:@"content"]]];
     cell.dateLabel.text = [NSString stringWithFormat:@"%@", [data objectForKey:@"createdOn"]];
+    if ([NSString stringWithFormat:@"%@", [data objectForKey:@"isRead"]].boolValue)
+    {
+        cell.isReadView.backgroundColor = MYSSGRAY;
+        cell.dateLabel.textColor = MYSSGRAY;
+        cell.contentLabel.textColor = MYSSGRAY;
+    }
+    else
+    {
+        cell.isReadView.backgroundColor = HOMEBLUE;
+        cell.dateLabel.textColor = [UIColor whiteColor];
+        cell.contentLabel.textColor = [UIColor whiteColor];
+    }
     
     return cell;
 }

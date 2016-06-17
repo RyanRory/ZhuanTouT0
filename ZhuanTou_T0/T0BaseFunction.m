@@ -147,4 +147,23 @@
     return tempStr;
 }
 
++ (int)significanceDigit:(int)num isMax:(BOOL)flag
+{
+    int temp = 1;
+    double tempNum = num;
+    while ([NSString stringWithFormat:@"%d", (int)tempNum].length > 2)
+    {
+        temp *= 10;
+        if (flag)
+        {
+            tempNum = ceil(tempNum/10);
+        }
+        else
+        {
+            tempNum = floor(tempNum/10);
+        }
+    }
+    return tempNum * temp;
+}
+
 @end

@@ -17,7 +17,7 @@
     for (int i=0; i<array.count; i++)
     {
         id obj = array[i];
-        if ([predicate evaluateWithObject:[NSString stringWithFormat:@"%@",[obj objectForKey:@"code"]]])
+        if ([predicate evaluateWithObject:[NSString stringWithFormat:@"%@",[obj objectForKey:@"code"]]] || [predicate evaluateWithObject:[NSString stringWithFormat:@"%@",[obj objectForKey:@"name"]]] ||[predicate evaluateWithObject:[NSString stringWithFormat:@"%@   %@",[obj objectForKey:@"code"],[obj objectForKey:@"name"]]])
         {
             [results addObject:obj];
         }

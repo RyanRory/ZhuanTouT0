@@ -11,7 +11,7 @@
 @interface T0SettingsDataModel : T0BaseModel
 {
     BOOL isRealNameSet;
-    NSString *realName;
+    NSString *realName, *mobile;
 }
 
 + (instancetype)shareInstance;
@@ -20,5 +20,7 @@
 - (BOOL)getIsRealNameSet;
 - (void)setRealName:(NSString*)str;
 - (NSString*)getRealName;
+- (void)setMobile:(NSString*)str;
+- (NSString*)getMobile;
 
 @end

@@ -29,11 +29,7 @@
     dataModel = [T0LoginDataModel shareInstance];
     
     self.hud.hidden = YES;
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
+    
     [mobileTextField becomeFirstResponder];
 }
 
@@ -42,6 +38,7 @@
     [super viewDidAppear:animated];
     T0NavigationController *nav = (T0NavigationController*)self.navigationController;
     [nav setPageOfPageControl:0];
+    [mobileTextField becomeFirstResponder];
 }
 
 #pragma didReceiveMemoryWarning
@@ -77,6 +74,11 @@
             errorView = [[T0ErrorMessageView alloc]init];
             [errorView showInView:self.navigationController.view withMessage:@"请输入手机号码" byStyle:ERRORMESSAGEERROR];
         }
+        else if (![[NSPredicate predicateWithFormat:@"SELF MATCHES %@",@"^[0-9]{11}$"] evaluateWithObject:[mobileTextField getTextFieldStr]])
+        {
+            errorView = [[T0ErrorMessageView alloc]init];
+            [errorView showInView:self.navigationController.view withMessage:@"请输入正确的手机号码" byStyle:ERRORMESSAGEERROR];
+        }
         else
         {
             self.hud.hidden = NO;
@@ -93,6 +95,7 @@
                     [dataModel setVCode:[T0BaseFunction md5HexDigest:[NSString stringWithFormat:@"rujustkiddingme%@", [T0BaseFunction deleteSpacesForString:[mobileTextField getTextFieldStr]]]]];
                     T0LoginPasswordViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0LoginPasswordViewController"];
                     [self.navigationController pushViewController:vc animated:YES];
+                    [mobileTextField resignFirstResponder];
                 }
                 else
                 {

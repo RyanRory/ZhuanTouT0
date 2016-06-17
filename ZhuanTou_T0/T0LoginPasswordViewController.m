@@ -35,11 +35,7 @@
     dataModel = [T0LoginDataModel shareInstance];
     
     self.hud.hidden = YES;
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
+    
     [passwordTextField becomeFirstResponder];
 }
 
@@ -48,6 +44,7 @@
     [super viewDidAppear:animated];
     T0NavigationController *nav = (T0NavigationController*)self.navigationController;
     [nav setPageOfPageControl:1];
+    [passwordTextField becomeFirstResponder];
 }
 
 #pragma didReceiveMemoryWarning
@@ -121,7 +118,7 @@
         if ([passwordTextField getTextFieldStr].length == 0)
         {
             errorView = [[T0ErrorMessageView alloc]init];
-            [errorView showInView:self.navigationController.view withMessage:@"请输入密码" byStyle:ERRORMESSAGEERROR];
+            [errorView showInView:self.navigationController.view withMessage:@"请输入登录密码" byStyle:ERRORMESSAGEERROR];
         }
         else
         {
@@ -151,10 +148,9 @@
                         [settingsDataModel setIsRealNameSet:true];
                         [settingsDataModel setRealName:[NSString stringWithFormat:@"%@",[responseObject objectForKey:@"fullName"]]];
                     }
+                    [settingsDataModel setMobile:[NSString stringWithFormat:@"%@", [responseObject objectForKey:@"mobilePhone"]]];
                     
                     [passwordTextField resignFirstResponder];
-                    errorView = [[T0ErrorMessageView alloc]init];
-                    [errorView showInView:self.navigationController.view withMessage:@"登录成功" byStyle:ERRORMESSAGESUCCESS];
                     [self.navigationController dismissViewControllerAnimated:NO completion:^(void){
                         [[NSNotificationCenter defaultCenter]postNotificationName:@"ShowHomePage" object:nil];
                     }];
@@ -179,6 +175,7 @@
 - (void)back:(id)sender
 {
     [self.navigationController popViewControllerAnimated:YES];
+    [passwordTextField resignFirstResponder];
 }
 
 #pragma TextField Delegate

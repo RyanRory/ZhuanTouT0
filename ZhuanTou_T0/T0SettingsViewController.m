@@ -22,7 +22,7 @@
     
     [self initNavigationBar];
     
-    cellObjects = [NSArray arrayWithObjects:@"实名认证", @"登录密码", @"QQ联系", @"客服热线", @"意见反馈", @"退出登录", nil];
+    cellObjects = [NSArray arrayWithObjects:@"绑定手机", @"实名认证", @"登录密码", @"QQ联系", @"客服热线", @"意见反馈", @"版 本 号", @"退出登录", nil];
     
     tView.scrollEnabled = NO;
     
@@ -67,7 +67,7 @@
     {
         return 40;
     }
-    if (section == 2)
+    if (section == 3)
     {
         return 15;
     }
@@ -100,6 +100,11 @@
     cell.titleLabel.text = data;
     switch (indexPath.section) {
         case 0:
+            cell.constraint.priority = 999;
+            cell.rightImageView.image = [UIImage imageNamed:@""];
+            cell.contentLabel.text = [dataModel getMobile];
+            break;
+        case 1:
             if ([dataModel getIsRealNameSet])
             {
                 cell.constraint.priority = 999;
@@ -113,27 +118,33 @@
             }
             break;
             
-        case 1:
+        case 2:
             cell.rightImageView.image = [UIImage imageNamed:@"NextArrow"];
             cell.contentLabel.text = @"修改";
             break;
             
-        case 2:
+        case 3:
             cell.rightImageView.image = [UIImage imageNamed:@"QQLogo"];
             cell.contentLabel.text = @"";
             break;
             
-        case 3:
+        case 4:
             cell.rightImageView.image = [UIImage imageNamed:@"PhoneLogo"];
             cell.contentLabel.text = @"";
             break;
             
-        case 4:
+        case 5:
             cell.rightImageView.image = [UIImage imageNamed:@"NextArrow"];
             cell.contentLabel.text = @"";
             break;
+        
+        case 6:
+            cell.constraint.priority = 999;
+            cell.rightImageView.image = [UIImage imageNamed:@""];
+            cell.contentLabel.text = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+            break;
             
-        case 5:
+        case 7:
             cell.rightImageView.image = [UIImage imageNamed:@""];
             cell.contentLabel.text = @"";
             break;
@@ -149,7 +160,7 @@
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     switch (indexPath.section) {
-        case 0:
+        case 1:
         {
             if (![dataModel getIsRealNameSet])
             {
@@ -159,14 +170,14 @@
             break;
         }
             
-        case 1:
+        case 2:
         {
             T0ChangeLoginPasswordViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0ChangeLoginPasswordViewController"];
             [self.navigationController pushViewController:vc animated:YES];
             break;
         }
             
-        case 2:
+        case 3:
         {
             if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"mqq://"]])
             {
@@ -185,7 +196,7 @@
             break;
         }
             
-        case 3:
+        case 4:
         {
             LGAlertView *alertView = [[LGAlertView alloc] initWithTitle:nil message:@"工作时间：9:00 ~ 19:00" style:LGAlertViewStyleActionSheet buttonTitles:@[@"呼叫  400-698-9861"] cancelButtonTitle:@"取消" destructiveButtonTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index){[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tel://4006989861"]];} cancelHandler:nil destructiveHandler:nil];
             alertView.backgroundColor = MYSSBUTTONDARK;
@@ -201,14 +212,14 @@
             break;
         }
             
-        case 4:
+        case 5:
         {
             T0FeedbackViewController *vc = [[self storyboard]instantiateViewControllerWithIdentifier:@"T0FeedbackViewController"];
             [self.navigationController pushViewController:vc animated:YES];
             break;
         }
             
-        case 5:
+        case 7:
         {
             LGAlertView *alertView = [[LGAlertView alloc] initWithTitle:nil message:@"是否确认安全退出当前账户?" style:LGAlertViewStyleAlert buttonTitles:@[@"确定"] cancelButtonTitle:@"取消" destructiveButtonTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index){
                 AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
@@ -219,6 +230,8 @@
                     {
                         [[NSUserDefaults standardUserDefaults] removeObjectForKey:MOBILE];
                         [[NSUserDefaults standardUserDefaults] removeObjectForKey:PASSWORD];
+                        errorView = [[T0ErrorMessageView alloc]init];
+                        [errorView showInView:self.navigationController.view withMessage:@"您已安全登出" byStyle:ERRORMESSAGESUCCESS];
                         T0NavigationController *nav = (T0NavigationController*)[self.navigationController presentedViewController];
                         [nav popToRootViewControllerAnimated:NO];
                         [self.navigationController dismissViewControllerAnimated:YES completion:nil];

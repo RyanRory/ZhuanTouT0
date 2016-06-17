@@ -22,13 +22,13 @@
     
     [self initNavigationBar];
     
-    [stockCodeTextField setPlaceHolderText:@"请输入您所持有的股票代码"];
-    [stockCodeTextField setPlaceHolderChangeText:@"股票代码"];
+    [stockCodeTextField setPlaceHolderText:@"请输入您所持有的股票代码或名称"];
+    [stockCodeTextField setPlaceHolderChangeText:@"股票代码(名称)"];
     [stockCodeTextField setStockEntry:YES];
     stockCodeTextField.delegate = self;
     [stockCodeTextField addTarget:self action:@selector(stockCodeTextFieldEditingChanged:) forControlEvents:UIControlEventEditingChanged];
     
-    [stockValueTextField setPlaceHolderText:@"请输入您所持有股票的数量"];
+    [stockValueTextField setPlaceHolderText:@"请输入您所持有股票的数量(股)"];
     [stockValueTextField setPlaceHolderChangeText:@"股票数量(股)"];
     stockValueTextField.delegate = self;
     
@@ -73,7 +73,7 @@
     if ([stockCodeTextField getTextFieldStr].length == 0)
     {
         errorView = [[T0ErrorMessageView alloc]init];
-        [errorView showInView:self.navigationController.view withMessage:@"请输入股票代码" byStyle:ERRORMESSAGEWARNING];
+        [errorView showInView:self.navigationController.view withMessage:@"请输入股票代码或名称" byStyle:ERRORMESSAGEWARNING];
     }
     else if ([stockValueTextField getTextFieldStr].length == 0)
     {
@@ -88,12 +88,12 @@
     else if ([chooseView.buttonOnlyEngine getSelectedButtonTag] == -1)
     {
         errorView = [[T0ErrorMessageView alloc]init];
-        [errorView showInView:self.navigationController.view withMessage:@"请选择股票期限" byStyle:ERRORMESSAGEWARNING];
+        [errorView showInView:self.navigationController.view withMessage:@"请选择您还将持有该股的期限" byStyle:ERRORMESSAGEWARNING];
     }
-    else if ([stockCodeTextField getTextFieldStr].length < 6 || [T0BaseFunction isChinese:[[stockCodeTextField getTextFieldStr] substringWithRange:NSMakeRange(0, 6)]])
+    else if (![chooseListView isButtonClicked])
     {
         errorView = [[T0ErrorMessageView alloc]init];
-        [errorView showInView:self.navigationController.view withMessage:@"请输入正确的股票代码" byStyle:ERRORMESSAGEWARNING];
+        [errorView showInView:self.navigationController.view withMessage:@"请正确选择股票代码及名称" byStyle:ERRORMESSAGEWARNING];
     }
     else
     {
@@ -174,11 +174,14 @@
 
 - (void)stockCodeTextFieldEditingChanged:(T0SmartPlaceholderTextField*)textfield
 {
+    [chooseListView textFieldEditing];
     if (textfield.text.length > 0)
     {
         chooseListView.hidden = NO;
         [self setChooseListViewTitles];
-        [T0Animator transpositionAnimation:chooseListView toPoint:CGPointMake(17*textfield.text.length, 0) duration:0.1f];
+        NSDictionary *attrs = @{NSFontAttributeName : textfield.font};
+        float width = [[textfield getTextFieldStr] boundingRectWithSize:CGSizeMake(MAXFLOAT, MAXFLOAT)  options:NSStringDrawingUsesLineFragmentOrigin attributes:attrs context:nil].size.width;
+        [T0Animator transpositionAnimation:chooseListView toPoint:CGPointMake(width+3, 0) duration:0.1f];
     }
     else
     {

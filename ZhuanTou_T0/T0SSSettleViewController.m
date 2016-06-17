@@ -89,6 +89,8 @@
             {
                 isLoading = false;
                 [self.navigationController popViewControllerAnimated:YES];
+                errorView = [[T0ErrorMessageView alloc]init];
+                [errorView showInView:self.navigationController.view withMessage:@"工作人员将尽快核对金额" byStyle:ERRORMESSAGESUCCESS];
             }
             else
             {

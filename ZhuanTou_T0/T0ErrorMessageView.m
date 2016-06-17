@@ -45,8 +45,8 @@
     }
     else if ([style isEqualToString:ERRORMESSAGEWARNING])
     {
-        messageLabel.textColor = HOMEBLACK;
-        self.backgroundColor = MESSAGEYELLOEW;
+        messageLabel.textColor = [UIColor whiteColor];
+        self.backgroundColor = MESSAGERED;
     }
     else
     {
@@ -54,8 +54,8 @@
         imageView.image = [UIImage imageNamed:@"CheckWithCircle"];
         [self addSubview:imageView];
         [messageLabel setFrame:CGRectMake(messageLabel.frame.origin.x+10, 0, width, 32)];
-        messageLabel.textColor = [UIColor whiteColor];
-        self.backgroundColor = MYSSGREEN;
+        messageLabel.textColor = HOMEBLACK;
+        self.backgroundColor = MESSAGEYELLOEW;
     }
     
     [window addSubview:self];

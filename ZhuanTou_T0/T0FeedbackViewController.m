@@ -71,7 +71,7 @@
                 if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
                 {
                     errorView = [[T0ErrorMessageView alloc]init];
-                    [errorView showInView:self.navigationController.view withMessage:@"我们已经收到您的宝贵意见" byStyle:ERRORMESSAGESUCCESS];
+                    [errorView showInView:self.navigationController.view withMessage:@"感谢您的宝贵意见" byStyle:ERRORMESSAGESUCCESS];
                     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                         isLoading = false;
                     });

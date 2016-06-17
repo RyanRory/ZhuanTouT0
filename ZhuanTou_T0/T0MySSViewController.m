@@ -200,11 +200,11 @@
         }
         if ([[[data objectForKey:@"stockAccount"] objectForKey:@"accountNumber"] isKindOfClass:[NSNull class]])
         {
-            cell.accountLabel.text = @"账户号(暂未登记)";
+            cell.accountLabel.text = @"资金账户(暂未登记)";
         }
         else
         {
-            cell.accountLabel.text = [NSString stringWithFormat:@"账户号%@", [[data objectForKey:@"stockAccount"] objectForKey:@"accountNumber"]];
+            cell.accountLabel.text = [NSString stringWithFormat:@"资金账户%@", [[data objectForKey:@"stockAccount"] objectForKey:@"accountNumber"]];
         }
         cell.statusLabel.text = [data objectForKey:@"status"];
         
@@ -238,9 +238,9 @@
         else
         {
             cell.lastDayProfitLabel.textColor = MYSSGRAY;
-            cell.lastDayProfitLabel.text = @"/";
+            cell.lastDayProfitLabel.text = @"--";
             cell.allProfitLabel.textColor = MYSSGRAY;
-            cell.allProfitLabel.text = @"/";
+            cell.allProfitLabel.text = @"--";
         }
         
         return cell;

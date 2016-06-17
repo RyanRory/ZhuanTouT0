@@ -34,11 +34,7 @@
     dataModel = [T0LoginDataModel shareInstance];
     
     self.hud.hidden = YES;
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
+    
     [passwordTextField becomeFirstResponder];
 }
 
@@ -47,6 +43,7 @@
     [super viewDidAppear:animated];
     T0NavigationController *nav = (T0NavigationController*)self.navigationController;
     [nav setPageOfPageControl:1];
+    [passwordTextField becomeFirstResponder];
 }
 
 #pragma didReceiveMemoryWarning
@@ -92,7 +89,7 @@
         if ([passwordTextField getTextFieldStr].length == 0)
         {
             errorView = [[T0ErrorMessageView alloc]init];
-            [errorView showInView:self.navigationController.view withMessage:@"请输入新的密码" byStyle:ERRORMESSAGEERROR];
+            [errorView showInView:self.navigationController.view withMessage:@"请设置新的登录密码" byStyle:ERRORMESSAGEERROR];
         }
         else
         {
@@ -108,7 +105,10 @@
                 if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
                 {
                     isLoading = false;
+                    errorView = [[T0ErrorMessageView alloc]init];
+                    [errorView showInView:self.navigationController.view withMessage:@"密码设置成功" byStyle:ERRORMESSAGESUCCESS];
                     [self dismissViewControllerAnimated:YES completion:nil];
+                    [passwordTextField becomeFirstResponder];
                 }
                 else
                 {
@@ -127,6 +127,7 @@
 - (void)back:(id)sender
 {
     [self.navigationController popViewControllerAnimated:YES];
+    [passwordTextField becomeFirstResponder];
 }
 
 #pragma TextField Delegate

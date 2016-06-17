@@ -13,5 +13,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *titleLabel;
 @property (strong, nonatomic) IBOutlet UILabel *timeLabel;
 @property (strong, nonatomic) IBOutlet UILabel *amountLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleConstraint;
+@property (strong, nonatomic) IBOutlet UILabel *statusLabel;
 
 @end

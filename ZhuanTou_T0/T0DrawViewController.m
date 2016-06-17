@@ -20,10 +20,11 @@
 #pragma ViewController LifeCycle
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [[IQKeyboardManager sharedManager] setEnable:YES];
+    [[IQKeyboardManager sharedManager] setKeyboardDistanceFromTextField:0.0f];
     
     [self initNavigationBar];
     
-    [drawTextField becomeFirstResponder];
     [drawTextField setPlaceHolderText:@"请输入提现金额"];
     [drawTextField setPlaceHolderChangeText:@"提现金额(元)"];
     [drawTextField setNumberFomatterEntry:YES Decimal:YES];
@@ -35,6 +36,12 @@
     [bankLogoImageView sd_setImageWithURL:[NSURL URLWithString:[BASEURL stringByAppendingString:[NSString stringWithFormat: @"content/images/banks/%@.png", [[data objectForKey:@"bankCard" ] objectForKey:@"bankCode"]]]]];
     
     self.hud.hidden = YES;
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [drawTextField becomeFirstResponder];
 }
 
 #pragma Navigation Function
@@ -51,6 +58,7 @@
 
 - (void)cancel:(id)sender
 {
+    [drawTextField becomeFirstResponder];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
@@ -90,6 +98,7 @@
                     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                         isLoading = false;
                     });
+                    [drawTextField becomeFirstResponder];
                     [self.navigationController popToViewController:self.navigationController.viewControllers[[self.navigationController.viewControllers indexOfObject:self]-2]  animated:YES];
                 }
                 else

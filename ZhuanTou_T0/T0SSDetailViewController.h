@@ -8,6 +8,7 @@
 
 #import "T0BaseViewController.h"
 #import "T0SSDetailTableViewCell.h"
+#import "T0SSDetailTimeTableViewCell.h"
 
 #import "T0SSRecordViewController.h"
 #import "T0SetPasswordViewController.h"

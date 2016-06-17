@@ -12,6 +12,7 @@
 {
     NSMutableArray *cellObjects;
     int pageIndex;
+    BOOL isNewMessage;
 }
 
 + (instancetype)shareInstance;
@@ -19,5 +20,6 @@
 - (void)getDataFromServer;
 - (NSArray*)getCellObjects;
 - (void)resetPageIndex;
+- (BOOL)isNewMessage;
 
 @end

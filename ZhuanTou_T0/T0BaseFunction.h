@@ -23,5 +23,6 @@
 + (NSString*)addSpacesForString:(NSString*)str;
 + (BOOL)isChinese:(NSString *)str;
 + (NSString*)formatterBankCardNum:(NSString *)str;
++ (int)significanceDigit:(int)num isMax:(BOOL)flag;
 
 @end

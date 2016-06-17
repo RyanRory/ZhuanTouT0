@@ -53,4 +53,14 @@ static T0SettingsDataModel *instance = nil;
     return realName;
 }
 
+- (void)setMobile:(NSString*)str
+{
+    mobile = [str stringByReplacingCharactersInRange:NSMakeRange(3, 4) withString:@"****"];
+}
+
+- (NSString*)getMobile
+{
+    return  mobile;
+}
+
 @end

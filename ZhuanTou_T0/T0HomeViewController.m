@@ -21,10 +21,12 @@
 @synthesize recommendView, recommendImage, recommendLabel, recommendButton;
 @synthesize bankCardView, bankCardImage, bankCardLabel, bankCardButton;
 @synthesize incomeView, incomeImage, incomeLabel, incomeButton;
+@synthesize badge;
 
 #pragma ViewController LifeCycle
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.navigationController.interactivePopGestureRecognizer.delegate = self;
     
     [self initNavigationBar];
     
@@ -48,6 +50,66 @@
     animatedFlag = false;
     dataModel = [T0HomePageDataModel shareInstance];
     
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(newMessage) name:@"NewMessage" object:nil];
+    
+    [self toDoEvents];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    messageDataModel = [T0MessageDataModel shareInstance];
+    [messageDataModel resetPageIndex];
+    [messageDataModel getDataFromServer];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(newMessage) name:@"NewMessage" object:nil];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    T0NavigationController *nav = (T0NavigationController*)self.navigationController;
+    [nav dismissPageControl];
+    
+    if (!animatedFlag)
+    {
+        [self buttonAnimation];
+        animatedFlag = true;
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self hideBadge];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:@"NewMessage" object:nil];
+}
+
+#pragma Navigation Function
+- (void)initNavigationBar
+{
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"MessageIcon"] style:UIBarButtonItemStylePlain target:self action:@selector(toMessages:)];
+    leftItem.tintColor = [UIColor whiteColor];
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"SettingsIcon"] style:UIBarButtonItemStylePlain target:self action:@selector(toSettings:)];
+    rightItem.tintColor = [UIColor whiteColor];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithCustomView:[UIButton buttonWithType:UIButtonTypeCustom]];
+    self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:leftItem, item, nil];
+    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:rightItem, item, nil];
+}
+
+#pragma didReceiveMemoryWarning
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma toDoEvents
+- (void)toDoEvents
+{
     if ([dataModel getData].count > 0)
     {
         LGAlertView *alertView = [[LGAlertView alloc] initWithTitle:[NSString stringWithFormat:@"%@",[[dataModel getData] objectForKey:@"eventType"]] message:[NSString stringWithFormat:@"%@",[[dataModel getData] objectForKey:@"text"]] style:LGAlertViewStyleAlert buttonTitles:@[@"前往处理"] cancelButtonTitle:@"暂不处理" destructiveButtonTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index){
@@ -73,35 +135,34 @@
     }
 }
 
-- (void)viewDidAppear:(BOOL)animated
+#pragma newMessage
+- (void)newMessage
 {
-    [super viewDidAppear:animated];
-    T0NavigationController *nav = (T0NavigationController*)self.navigationController;
-    [nav dismissPageControl];
-    
-    if (!animatedFlag)
+    if ([messageDataModel isNewMessage])
     {
-        [self buttonAnimation];
-        animatedFlag = true;
+        [self showBadge];
+    }
+    else
+    {
+        [self hideBadge];
     }
 }
 
-#pragma Navigation Function
-- (void)initNavigationBar
+#pragma badgeFunction
+- (void)showBadge
 {
-    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"MessageIcon"] style:UIBarButtonItemStylePlain target:self action:@selector(toMessages:)];
-    leftItem.tintColor = [UIColor whiteColor];
-    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"SettingsIcon"] style:UIBarButtonItemStylePlain target:self action:@selector(toSettings:)];
-    rightItem.tintColor = [UIColor whiteColor];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithCustomView:[UIButton buttonWithType:UIButtonTypeCustom]];
-    self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:leftItem, item, nil];
-    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:rightItem, item, nil];
+    badge = [[UIView alloc]initWithFrame:CGRectMake(30, 10, 8, 8)];
+    badge.backgroundColor = MYSSRED;
+    [badge.layer setCornerRadius:4];
+    [self.navigationController.navigationBar addSubview:badge];
 }
 
-#pragma didReceiveMemoryWarning
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)hideBadge
+{
+    if (badge)
+    {
+        [badge removeFromSuperview];
+    }
 }
 
 #pragma buttonAction

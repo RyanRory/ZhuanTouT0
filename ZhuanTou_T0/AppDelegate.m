@@ -43,6 +43,25 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    NSString *URL = [BASEURL stringByAppendingString:@"api/auth/checkLogin"];
+    [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, NSDictionary *responseObject) {
+        NSLog(@"%@", responseObject);
+        if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isAuthenticated"]].boolValue)
+        {
+
+        }
+        else
+        {
+            T0NavigationController *nav = [[UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]]instantiateViewControllerWithIdentifier:@"LoginNav"];
+            [self.window.viewController presentViewController:nav animated:YES completion:nil];
+        }
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"HTTPFail" object:nil];
+    }];
+
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {

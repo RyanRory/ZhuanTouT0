@@ -22,7 +22,7 @@
     
     [self initNavigationBar];
     
-    [chooseView setTitle:@"账户是否属于您本人"];
+    [chooseView setTitle:@"该账户是否由您本人实际操作"];
     [chooseView addButtons:[NSArray arrayWithObjects:@"是", @"否", nil] withMarginBetween:30 withMarginSides:20];
     
     dataModel = [T0StockDataModel shareInstance];
@@ -61,7 +61,7 @@
         if ([chooseView.buttonOnlyEngine getSelectedButtonTag] == -1)
         {
             errorView = [[T0ErrorMessageView alloc]init];
-            [errorView showInView:self.navigationController.view withMessage:@"请选择账户是否属于您本人" byStyle:ERRORMESSAGEWARNING];
+            [errorView showInView:self.navigationController.view withMessage:@"请选择账户是否由您本人操作" byStyle:ERRORMESSAGEWARNING];
         }
         else if ([dataModel getStockSourceArray].count == 0)
         {

@@ -60,11 +60,11 @@
     cellObjects = [NSArray arrayWithArray:[data objectForKey:@"stocks"]];
     if ([[[data objectForKey:@"stockAccount"] objectForKey:@"accountNumber"] isKindOfClass:[NSNull class]])
     {
-        titleLabel.text = @"账户号(暂未登记)";
+        titleLabel.text = @"资金账户(暂未登记)";
     }
     else
     {
-        titleLabel.text = [NSString stringWithFormat:@"账户号%@", [[data objectForKey:@"stockAccount"] objectForKey:@"accountNumber"]];
+        titleLabel.text = [NSString stringWithFormat:@"资金账户%@", [[data objectForKey:@"stockAccount"] objectForKey:@"accountNumber"]];
     }
     
     statusLabel.text = [data objectForKey:@"status"];
@@ -91,6 +91,7 @@
     }
     
     modeLabel.text = [data objectForKey:@"profitModel"];
+    
     if ([[data objectForKey:@"nextWithdrawDate"] isKindOfClass:[NSNull class]])
     {
         dateLabel.text = @"未知";
@@ -177,7 +178,7 @@
                     if ([NSString stringWithFormat:@"%@", [responseObject objectForKey:@"isSuccess"]].boolValue)
                     {
                         errorView = [[T0ErrorMessageView alloc]init];
-                        [errorView showInView:self.navigationController.view withMessage:@"提前终结完成" byStyle:ERRORMESSAGESUCCESS];
+                        [errorView showInView:self.navigationController.view withMessage:@"已收到您的提前结算申请" byStyle:ERRORMESSAGESUCCESS];
                         [self.navigationController popViewControllerAnimated:YES];
 
                     }
@@ -229,6 +230,10 @@
 #pragma TableViewDelegate/DataSource
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (indexPath.section ==  cellObjects.count)
+    {
+        return 30;
+    }
     return 103;
 }
 
@@ -250,38 +255,42 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return cellObjects.count;
+    return cellObjects.count+1;
 }
 
 - (UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    id object = cellObjects[indexPath.section];
-    T0SSDetailTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"T0SSDetailTableViewCell"];
-    if (!cell)
+    if (indexPath.section == cellObjects.count)
     {
-        cell = [[T0SSDetailTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"T0SSDetailTableViewCell"];
-    }
-    cell.nameLabel.text = [object objectForKey:@"stockName"];
-    
-    cell.originalStockAmountLabel.text = [T0BaseFunction formatterNumberWithoutDecimal:[NSString stringWithFormat:@"%@",[object objectForKey:@"initialNoOfShares"]]];
-    cell.instanceStockAmountLabel.text = [T0BaseFunction formatterNumberWithoutDecimal:[NSString stringWithFormat:@"%@",[object objectForKey:@"yesterdayNoOfShares"]]];
-    cell.marketValueLabel.text = [T0BaseFunction formatterNumberWithDecimal:[NSString stringWithFormat:@"%@",[object objectForKey:@"yesterdayMarketValue"]]];
-    if (indexPath.section == cellObjects.count-1)
-    {
-        cell.shortLine.hidden = YES;
-        cell.bottomLine.hidden = NO;
+        T0SSDetailTimeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"T0SSDetailTimeTableViewCell"];
+        if (!cell)
+        {
+            cell = [[T0SSDetailTimeTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"T0SSDetailTimeTableViewCell"];
+        }
+        cell.timeLabel.text = [NSString stringWithFormat:@"业绩更新时间 %@", [data objectForKey:@"modifiedOn"]];
+        
+        return cell;
     }
     else
     {
-        cell.shortLine.hidden = NO;
-        cell.bottomLine.hidden = YES;
+        id object = cellObjects[indexPath.section];
+        T0SSDetailTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"T0SSDetailTableViewCell"];
+        if (!cell)
+        {
+            cell = [[T0SSDetailTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"T0SSDetailTableViewCell"];
+        }
+        cell.nameLabel.text = [object objectForKey:@"stockName"];
+        
+        cell.originalStockAmountLabel.text = [T0BaseFunction formatterNumberWithoutDecimal:[NSString stringWithFormat:@"%@",[object objectForKey:@"initialNoOfShares"]]];
+        cell.instanceStockAmountLabel.text = [T0BaseFunction formatterNumberWithoutDecimal:[NSString stringWithFormat:@"%@",[object objectForKey:@"yesterdayNoOfShares"]]];
+        cell.marketValueLabel.text = [T0BaseFunction formatterNumberWithDecimal:[NSString stringWithFormat:@"%@",[object objectForKey:@"yesterdayMarketValue"]]];
+        
+        [T0BaseFunction setColoredLabelText:cell.lastDayProfitLabel Number:[NSString stringWithFormat:@"%@",[object objectForKey:@"yesterdayProfit"]]];
+        [T0BaseFunction setColoredLabelText:cell.allProfitLabel Number:[NSString stringWithFormat:@"%@",[object objectForKey:@"currentCycleProfit"]]];
+        [T0BaseFunction setColoredLabelText:cell.sumProfitLabel Number:[NSString stringWithFormat:@"%@",[object objectForKey:@"cumExtraProfit"]]];
+        
+        return cell;
     }
-    
-    [T0BaseFunction setColoredLabelText:cell.lastDayProfitLabel Number:[NSString stringWithFormat:@"%@",[object objectForKey:@"yesterdayProfit"]]];
-    [T0BaseFunction setColoredLabelText:cell.allProfitLabel Number:[NSString stringWithFormat:@"%@",[object objectForKey:@"currentCycleProfit"]]];
-    [T0BaseFunction setColoredLabelText:cell.sumProfitLabel Number:[NSString stringWithFormat:@"%@",[object objectForKey:@"cumExtraProfit"]]];
-    
-    return cell;
 }
 
 @end

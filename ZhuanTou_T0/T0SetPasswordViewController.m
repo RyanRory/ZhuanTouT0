@@ -24,11 +24,11 @@
     
     if ([[account objectForKey:@"accountNumber"] isKindOfClass:[NSNull class]])
     {
-        accountLabel.text = @"账户号(暂未登记)";
+        accountLabel.text = @"资金账户(暂未登记)";
     }
     else
     {
-        accountLabel.text = [NSString stringWithFormat:@"账户号%@", [account objectForKey:@"accountNumber"]];
+        accountLabel.text = [NSString stringWithFormat:@"资金账户%@", [account objectForKey:@"accountNumber"]];
     }
     
     tradePswdTextField.delegate = self;
