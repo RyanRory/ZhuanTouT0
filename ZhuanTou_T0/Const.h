@@ -12,8 +12,8 @@
 #define SCREEN_WIDTH ([UIScreen mainScreen].bounds.size.width)
 #define SCREEN_HEIGHT ([UIScreen mainScreen].bounds.size.height)
 
-//#define BASEURL @"http://tougu.pujintianxia.com/"
-#define BASEURL @"http://tougu.zhuantouwang.com/"
+#define BASEURL @"http://tougu.pujintianxia.com/"
+//#define BASEURL @"http://tougu.zhuantouwang.com/"
 
 #define STOCKSFILE @"stocks.plist"
 

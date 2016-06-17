@@ -100,17 +100,17 @@
     if (number.doubleValue > 0)
     {
         label.textColor = MYSSRED;
-        label.text = [NSString stringWithFormat:@"+%@",[self formatterNumberWithBrain:number]];
+        label.text = [NSString stringWithFormat:@"+%@",[self formatterNumberWithDecimal:number]];
     }
     else if (number.doubleValue < 0)
     {
         label.textColor = MYSSGREEN;
-        label.text = [self formatterNumberWithBrain:number];
+        label.text = [self formatterNumberWithDecimal:number];
     }
     else
     {
         label.textColor = [UIColor whiteColor];
-        label.text = @"0";
+        label.text = @"0.00";
     }
 }
 

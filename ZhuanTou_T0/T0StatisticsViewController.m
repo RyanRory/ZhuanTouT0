@@ -108,6 +108,10 @@
 {
     data = [NSDictionary dictionaryWithDictionary:[dataModel getData]];
     grandTotalNumLabel.text = [T0BaseFunction formatterNumberWithDecimal:[NSString stringWithFormat:@"%@", [data objectForKey:@"cumProfit"]]];
+    allStockProfitLabel.text = [T0BaseFunction formatterNumberWithDecimal:[NSString stringWithFormat:@"%@", [data objectForKey:@"CumStockProfit"]]];
+    allBrokerProfitLabel.text = [T0BaseFunction formatterNumberWithDecimal:[NSString stringWithFormat:@"%@", [data objectForKey:@"CumCommission"]]];
+    [T0BaseFunction setColoredLabelText:yesterdayStockProfitLabel Number:[NSString stringWithFormat:@"%@", [data objectForKey:@"YesterdayStockProfit"]]];
+    [T0BaseFunction setColoredLabelText:yesterdayBrokerProfitLabel Number:[NSString stringWithFormat:@"%@", [data objectForKey:@"YesterdayCommission"]]];
     
     lineChartData = [NSMutableArray arrayWithArray:[data objectForKey:@"dailyStats"]];
     xLabels = [NSMutableArray arrayWithObjects:@"", @"", @"", @"", @"", @"", @"", @"", @"", nil];
